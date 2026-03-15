@@ -54,4 +54,10 @@ kubectl ...
 2. Identify what is missing (notes, YAML files, or entire concept folders).
 3. Create or update files to fill the gaps, following the conventions above.
 4. Validate every YAML manifest using the `k8s-dry-run` skill before delivering it to the user. Fix any reported errors and re-validate until the dry-run passes.
-5. After creating files, briefly summarize what was created and suggest the next concept to study.
+5. After any change to the codebase (adding, updating, or removing concepts, sections, or files), update `README.md` accordingly:
+   - Add a new row to the relevant section table when a new concept is created.
+   - Update an existing row's link or description when a concept is renamed or moved.
+   - Remove a row when a concept folder is deleted.
+   - Add a new section heading and table when a new `section_XX_*` folder is introduced.
+   - Preserve the existing README.md structure, tone, and formatting throughout.
+6. After creating files, briefly summarize what was created and suggest the next concept to study.
