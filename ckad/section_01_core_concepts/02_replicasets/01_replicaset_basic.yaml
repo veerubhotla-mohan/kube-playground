@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  labels:
+    app: myapp
+spec:
+  replicas: 3                   # desired number of Pod replicas
+  selector:
+    matchLabels:
+      app: myapp                # must match template labels below
+  template:                     # Pod template — used to create new Pods
+    metadata:
+      labels:
+        app: myapp              # must match selector above
+    spec:
+      containers:
+        - name: myapp
+          image: nginx:1.25
