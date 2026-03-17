@@ -12,11 +12,11 @@ Error generating stack: `+e.message+`
 A **Pod** is the smallest and most basic deployable unit in Kubernetes. It represents a single instance of a running process and wraps one or more containers that share the same network namespace and storage volumes. All containers in a Pod are co-located on the same node and scale together.
 
 ## Key Characteristics
-- **Atomic unit**: Kubernetes schedules, starts, and stops all containers in a Pod together.
-- **Shared network**: Every container in a Pod shares the same IP address and port space. Containers communicate with each other via \`localhost\`.
-- **Shared storage**: Containers in a Pod can mount the same \`volumes\`, enabling data sharing between them.
-- **Ephemeral by nature**: Pods are not self-healing on their own. If a Pod dies, a controller (e.g., Deployment) recreates it — potentially with a new IP.
-- **Single vs multi-container**: Most Pods run one container. Multi-container Pods use patterns like sidecar, ambassador, or adapter.
+- **Atomic unit**: Kubernetes treats a Pod as one deployable object, so all containers inside it are scheduled to the same node and managed together. This is why you do not scale individual containers inside a Pod, you scale Pods.
+- **Shared network**: Containers in the same Pod share one IP address and one network namespace. This makes inter-container communication simple because they can talk to each other using localhost without extra Service configuration.
+- **Shared storage**: Containers in a Pod can mount the same volume, which allows them to exchange files or logs during runtime. This is useful in sidecar patterns where one container writes data and another container reads or processes it.
+- **Ephemeral by nature**: Pods are meant to be replaceable and can be recreated at any time by a controller. When that happens, the new Pod may get a different IP, so stable access should usually happen through a Service rather than a Pod IP.
+- **Single vs multi-container**: Most real workloads use one main container per Pod for simplicity and isolation of responsibility. Multi-container Pods are used when containers must closely cooperate, such as app plus log-forwarder or app plus proxy sidecar.
 
 ## Pod Lifecycle Phases
 | Phase | Meaning |
@@ -67,12 +67,12 @@ A **ReplicaSet** ensures that a specified number of identical Pod replicas are r
 In practice, ReplicaSets are rarely created directly — they are managed by **Deployments**, which add rolling-update and rollback capabilities on top.
 
 ## Key Characteristics
-- Maintains a stable set of replica Pods using a **label selector**
-- Supports **set-based** selectors (\`matchLabels\`, \`matchExpressions\`), unlike the older ReplicationController which only supports equality-based selectors
-- Automatically replaces Pods that are deleted, crash, or are evicted
-- Scales horizontally — increase or decrease \`replicas\` to scale the workload
-- A Pod created **outside** a ReplicaSet can be **adopted** if it matches the selector (and it has no ownerReference)
-- Deleting a ReplicaSet also deletes all the Pods it owns (cascade delete by default)
+- **Label-selector driven**: The ReplicaSet continuously compares the desired replica count against all Pods whose labels match its selector. If the numbers differ, it creates or deletes Pods until the actual state matches the target state.
+- **Set-based selectors**: Uses \`matchLabels\` and \`matchExpressions\` in \`spec.selector\`, which are more expressive than the simple equality checks of the older ReplicationController. This gives you finer control over which Pods the ReplicaSet considers its own.
+- **Self-healing**: Automatically recreates Pods that are deleted, crash, or get evicted from a node. This keeps your application running without manual intervention and is one of the biggest advantages over manually managed Pods.
+- **Horizontal scaling**: Changing the \`replicas\` field runs more or fewer copies of the same Pod template. Increasing replicas spreads load across more instances; decreasing it frees cluster resources.
+- **Pod adoption**: A ReplicaSet can adopt an existing Pod it did not create if that Pod's labels match the selector and no other controller owns it. This can cause unexpected ownership changes, so it is important to keep selectors unique per workload.
+- **Cascade deletion**: Deleting a ReplicaSet also deletes all the Pods it owns by default. To keep Pods running after removing the controller, use \`--cascade=orphan\`, which breaks ownership without stopping the Pods.
 
 ## How the selector works
 The \`spec.selector\` must match the labels in \`spec.template.metadata.labels\`. Kubernetes will reject the manifest if they do not match.
@@ -140,13 +140,13 @@ A **Deployment** is a higher-level abstraction that manages a ReplicaSet and pro
 Deployments are the standard way to run stateless workloads in Kubernetes. They wrap a ReplicaSet and add **rolling updates**, **rollbacks**, and **revision history** on top.
 
 ## Key Characteristics
-- Manages a ReplicaSet under the hood — the ReplicaSet manages the Pods
-- Supports **rolling updates**: replaces Pods gradually with zero downtime (default strategy)
-- Supports **Recreate** strategy: terminates all existing Pods before creating new ones
-- Maintains a **revision history** so you can roll back to any previous version
-- Scaling the Deployment scales the underlying ReplicaSet
-- Pausing a Deployment lets you batch multiple changes before triggering a rollout
-- A new ReplicaSet is created on each rollout; the old one is kept (scaled to 0) for rollback
+- **Manages a ReplicaSet**: A Deployment creates and owns a ReplicaSet, which in turn manages the actual Pods. In practice you interact only with the Deployment, and Kubernetes handles the lower-level ReplicaSet bookkeeping for you.
+- **Rolling update strategy**: By default, new Pods are created and old ones are removed gradually so the application stays available during an upgrade. The pace is controlled by \`maxUnavailable\` and \`maxSurge\` to balance speed against stability.
+- **Recreate strategy**: All existing Pods are terminated first, then new ones are started. This causes a brief period of downtime but is necessary when old and new versions cannot safely run side by side.
+- **Revision history and rollback**: Every rollout saves a revision entry, so you can inspect what changed and roll back to any previous version with a single command. This makes recovering from a bad release fast and reliable.
+- **Horizontal scaling**: Changing \`replicas\` scales the workload up or down and the Deployment propagates that change to its managed ReplicaSet automatically. Scale up for high traffic, scale down to reduce resource usage.
+- **Pause and resume**: You can pause a Deployment to apply multiple spec changes without triggering a separate rollout for each one. Once satisfied, resuming causes a single controlled rollout incorporating all the batched changes.
+- **ReplicaSet per rollout**: Each rollout produces a new ReplicaSet; old ones are kept but scaled to zero. This is what makes rollout history, diff inspection, and undo operations work — the previous state is preserved, not discarded.
 
 ## Rolling Update Parameters
 Controlled under \`spec.strategy.rollingUpdate\`:
@@ -251,12 +251,12 @@ spec:
 A **Namespace** is a logical partition inside a Kubernetes cluster that lets you organize and isolate resources (Pods, Services, Deployments, etc.) within the same physical cluster.
 
 ## Key Characteristics
-- Provides **scope** for names: resource names must be unique within a Namespace, not across the whole cluster.
-- Enables **multi-tenancy**: teams, environments (dev/stage/prod), or apps can share one cluster safely.
-- Works with **RBAC** to control who can access resources in each Namespace.
-- Works with **ResourceQuota** and **LimitRange** to control resource consumption per Namespace.
-- Some resources are **namespaced** (Pods, Deployments), while others are **cluster-scoped** (Nodes, PersistentVolumes, Namespaces).
-- Kubernetes includes default Namespaces such as \`default\`, \`kube-system\`, \`kube-public\`, and \`kube-node-lease\`.
+- **Name scoping**: Resource names must be unique within a namespace, not across the whole cluster. This means two teams can each have a Deployment named \`app\` in their own namespace without any collision.
+- **Multi-tenancy**: Multiple teams, projects, or environments (dev, stage, prod) can share one physical cluster with logical boundaries between them. This reduces infrastructure costs while keeping workloads clearly organized.
+- **RBAC integration**: Role-Based Access Control policies are namespace-scoped, so you can grant a team full control over their own namespace while preventing them from touching other namespaces. This is a key building block for cluster security.
+- **Resource governance**: \`ResourceQuota\` caps cumulative CPU, memory, and object counts per namespace, and \`LimitRange\` sets default per-Pod limits. Together they prevent any one team from starving the rest of the cluster.
+- **Namespaced vs cluster-scoped resources**: Resources like Pods, Deployments, and Services live inside a namespace and require the \`-n\` flag when targeted by kubectl. Resources like Nodes, PersistentVolumes, and Namespaces themselves are cluster-wide and ignore the \`-n\` flag.
+- **Built-in namespaces**: Kubernetes ships with \`default\` (user workloads when no namespace is specified), \`kube-system\` (core cluster components), \`kube-public\` (publicly readable data), and \`kube-node-lease\` (node heartbeat leases). In real projects, creating dedicated namespaces for each application or team is a widely adopted best practice.
 
 ## Commands
 \`\`\`kubectl
@@ -289,11 +289,11 @@ metadata:
 In Kubernetes, **environment variables** allow you to inject configuration data directly into containers at runtime. They decouple configuration from the container image. The simplest form defines values inline in the Pod spec under \`env[].value\` — no external resource required.
 
 ## Key Characteristics
-- **Defined in \`env[]\`**: Each entry has a \`name\` and a \`value\`; both are plain strings.
-- **Scoped to a container**: Env vars are declared per container inside \`spec.containers[]\`, not at the Pod level.
-- **Immutable at runtime**: Env vars are injected when the container starts. To change them you must recreate the Pod.
-- **Available to all processes**: Every process in the container inherits the env vars automatically.
-- **Reference other sources**: Beyond literals, \`valueFrom\` lets you reference ConfigMap keys (\`configMapKeyRef\`), Secret keys (\`secretKeyRef\`), or Pod metadata (\`fieldRef\`) — covered in their own sections.
+- **Defined in \`env[]\`**: Each variable is declared as a name and value pair directly in the container spec. This makes simple configuration explicit and easy to read in the YAML manifest.
+- **Scoped to a container**: Environment variables are configured per container, even when multiple containers exist in one Pod. If two containers need the same variable, you must define it in both container sections.
+- **Immutable at runtime**: Values are injected when the container process starts and do not auto-update afterward. When configuration changes, a new Pod rollout is typically required to apply updated values.
+- **Available to all processes**: Any process running inside the container can read these variables from its environment. This is why env vars are a common way to pass app settings such as ports, modes, or endpoint URLs.
+- **Reference other sources**: Using \`valueFrom\`, env vars can come from ConfigMaps, Secrets, or Pod fields instead of hardcoded text. This supports cleaner and safer configuration management, especially for sensitive or frequently changed values.
 
 ## Commands
 \`\`\`
