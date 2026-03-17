@@ -60,4 +60,5 @@ kubectl ...
    - Remove a row when a concept folder is deleted.
    - Add a new section heading and table when a new `section_XX_*` folder is introduced.
    - Preserve the existing README.md structure, tone, and formatting throughout.
-6. After creating files, briefly summarize what was created and suggest the next concept to study.
+6. After CKAD content changes, sync `k8s-tutorial-app/` using the `react-tutorial-sync` skill when the React tutorial should reflect the new or updated topics. Keep app edits minimal and non-breaking, preserving current structure and styling.
+7. After creating or updating files, briefly summarize what was created and suggest the next concept to study.
