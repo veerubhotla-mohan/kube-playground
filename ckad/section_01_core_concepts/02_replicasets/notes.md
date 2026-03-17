@@ -6,12 +6,12 @@ A **ReplicaSet** ensures that a specified number of identical Pod replicas are r
 In practice, ReplicaSets are rarely created directly — they are managed by **Deployments**, which add rolling-update and rollback capabilities on top.
 
 ## Key Characteristics
-- Maintains a stable set of replica Pods using a **label selector**
-- Supports **set-based** selectors (`matchLabels`, `matchExpressions`), unlike the older ReplicationController which only supports equality-based selectors
-- Automatically replaces Pods that are deleted, crash, or are evicted
-- Scales horizontally — increase or decrease `replicas` to scale the workload
-- A Pod created **outside** a ReplicaSet can be **adopted** if it matches the selector (and it has no ownerReference)
-- Deleting a ReplicaSet also deletes all the Pods it owns (cascade delete by default)
+- **Label-selector driven**: The ReplicaSet continuously compares the desired replica count against all Pods whose labels match its selector. If the numbers differ, it creates or deletes Pods until the actual state matches the target state.
+- **Set-based selectors**: Uses `matchLabels` and `matchExpressions` in `spec.selector`, which are more expressive than the simple equality checks of the older ReplicationController. This gives you finer control over which Pods the ReplicaSet considers its own.
+- **Self-healing**: Automatically recreates Pods that are deleted, crash, or get evicted from a node. This keeps your application running without manual intervention and is one of the biggest advantages over manually managed Pods.
+- **Horizontal scaling**: Changing the `replicas` field runs more or fewer copies of the same Pod template. Increasing replicas spreads load across more instances; decreasing it frees cluster resources.
+- **Pod adoption**: A ReplicaSet can adopt an existing Pod it did not create if that Pod's labels match the selector and no other controller owns it. This can cause unexpected ownership changes, so it is important to keep selectors unique per workload.
+- **Cascade deletion**: Deleting a ReplicaSet also deletes all the Pods it owns by default. To keep Pods running after removing the controller, use `--cascade=orphan`, which breaks ownership without stopping the Pods.
 
 ## How the selector works
 The `spec.selector` must match the labels in `spec.template.metadata.labels`. Kubernetes will reject the manifest if they do not match.

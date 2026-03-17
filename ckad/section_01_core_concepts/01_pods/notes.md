@@ -4,11 +4,11 @@
 A **Pod** is the smallest and most basic deployable unit in Kubernetes. It represents a single instance of a running process and wraps one or more containers that share the same network namespace and storage volumes. All containers in a Pod are co-located on the same node and scale together.
 
 ## Key Characteristics
-- **Atomic unit**: Kubernetes schedules, starts, and stops all containers in a Pod together.
-- **Shared network**: Every container in a Pod shares the same IP address and port space. Containers communicate with each other via `localhost`.
-- **Shared storage**: Containers in a Pod can mount the same `volumes`, enabling data sharing between them.
-- **Ephemeral by nature**: Pods are not self-healing on their own. If a Pod dies, a controller (e.g., Deployment) recreates it — potentially with a new IP.
-- **Single vs multi-container**: Most Pods run one container. Multi-container Pods use patterns like sidecar, ambassador, or adapter.
+- **Atomic unit**: Kubernetes treats a Pod as one deployable object, so all containers inside it are scheduled to the same node and managed together. This is why you do not scale individual containers inside a Pod, you scale Pods.
+- **Shared network**: Containers in the same Pod share one IP address and one network namespace. This makes inter-container communication simple because they can talk to each other using localhost without extra Service configuration.
+- **Shared storage**: Containers in a Pod can mount the same volume, which allows them to exchange files or logs during runtime. This is useful in sidecar patterns where one container writes data and another container reads or processes it.
+- **Ephemeral by nature**: Pods are meant to be replaceable and can be recreated at any time by a controller. When that happens, the new Pod may get a different IP, so stable access should usually happen through a Service rather than a Pod IP.
+- **Single vs multi-container**: Most real workloads use one main container per Pod for simplicity and isolation of responsibility. Multi-container Pods are used when containers must closely cooperate, such as app plus log-forwarder or app plus proxy sidecar.
 
 ## Pod Lifecycle Phases
 | Phase | Meaning |

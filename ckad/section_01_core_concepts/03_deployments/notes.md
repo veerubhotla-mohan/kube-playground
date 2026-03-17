@@ -6,13 +6,13 @@ A **Deployment** is a higher-level abstraction that manages a ReplicaSet and pro
 Deployments are the standard way to run stateless workloads in Kubernetes. They wrap a ReplicaSet and add **rolling updates**, **rollbacks**, and **revision history** on top.
 
 ## Key Characteristics
-- Manages a ReplicaSet under the hood — the ReplicaSet manages the Pods
-- Supports **rolling updates**: replaces Pods gradually with zero downtime (default strategy)
-- Supports **Recreate** strategy: terminates all existing Pods before creating new ones
-- Maintains a **revision history** so you can roll back to any previous version
-- Scaling the Deployment scales the underlying ReplicaSet
-- Pausing a Deployment lets you batch multiple changes before triggering a rollout
-- A new ReplicaSet is created on each rollout; the old one is kept (scaled to 0) for rollback
+- **Manages a ReplicaSet**: A Deployment creates and owns a ReplicaSet, which in turn manages the actual Pods. In practice you interact only with the Deployment, and Kubernetes handles the lower-level ReplicaSet bookkeeping for you.
+- **Rolling update strategy**: By default, new Pods are created and old ones are removed gradually so the application stays available during an upgrade. The pace is controlled by `maxUnavailable` and `maxSurge` to balance speed against stability.
+- **Recreate strategy**: All existing Pods are terminated first, then new ones are started. This causes a brief period of downtime but is necessary when old and new versions cannot safely run side by side.
+- **Revision history and rollback**: Every rollout saves a revision entry, so you can inspect what changed and roll back to any previous version with a single command. This makes recovering from a bad release fast and reliable.
+- **Horizontal scaling**: Changing `replicas` scales the workload up or down and the Deployment propagates that change to its managed ReplicaSet automatically. Scale up for high traffic, scale down to reduce resource usage.
+- **Pause and resume**: You can pause a Deployment to apply multiple spec changes without triggering a separate rollout for each one. Once satisfied, resuming causes a single controlled rollout incorporating all the batched changes.
+- **ReplicaSet per rollout**: Each rollout produces a new ReplicaSet; old ones are kept but scaled to zero. This is what makes rollout history, diff inspection, and undo operations work — the previous state is preserved, not discarded.
 
 ## Rolling Update Parameters
 Controlled under `spec.strategy.rollingUpdate`:
