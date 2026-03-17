@@ -32,7 +32,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <p className="eyebrow">CKAD Playground</p>
+        <p className="eyebrow">CKAD Preparation</p>
         <h1>Kubernetes Tutorial</h1>
         <p className="subtitle">
           Navigate through CKAD topics, read concise explanations, and inspect
