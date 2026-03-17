@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f4f7f2;
+  --bg-accent: #d9eadf;
+  --panel: #ffffff;
+  --panel-soft: #f9fbf8;
+  --text: #152122;
+  --muted: #496161;
+  --line: #c8d8ce;
+  --primary: #1f7a59;
+  --primary-soft: #e2f2ea;
+  --shadow: 0 16px 40px rgba(20, 47, 35, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 15% 5%, var(--bg-accent), transparent 28%),
+    radial-gradient(circle at 85% 15%, #f5d9cb, transparent 24%),
+    var(--bg);
+}
+
+#root {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: linear-gradient(125deg, #ffffff, #f2f8f4);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 8px 0 6px;
+  font-size: clamp(1.7rem, 3vw, 2.8rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+}
+
+.sidebar,
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.sidebar {
+  align-self: start;
+  position: sticky;
+  top: 24px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.section-list {
+  display: grid;
+  gap: 10px;
+}
+
+.section-button {
+  border: 1px solid var(--line);
+  background: var(--panel-soft);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  font: inherit;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.section-button span {
+  font-weight: 600;
+}
+
+.section-button small {
+  color: var(--muted);
+}
+
+.section-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+}
+
+.section-button.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.content {
+  display: grid;
+  gap: 14px;
+}
+
+.concept-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.tab.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.card {
+  padding: 20px;
+}
+
+.card h2,
+.card h3 {
+  margin-top: 0;
+}
+
+.what-is {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+ul {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+li {
+  color: var(--muted);
+}
+
+pre {
+  margin: 0;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #101a1a;
+  color: #def3ef;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.yaml-path {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.yaml-examples {
+  display: grid;
+  gap: 16px;
+}
+
+.yaml-example-item h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.animate-in {
+  animation: rise 380ms ease both;
+}
+
+.animate-in.delay-1 {
+  animation-delay: 70ms;
+}
+
+.animate-in.delay-2 {
+  animation-delay: 120ms;
+}
+
+.animate-in.delay-3 {
+  animation-delay: 160ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  #root {
+    padding: 16px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .app-header,
+  .sidebar,
+  .card {
+    border-radius: 16px;
+  }
+}

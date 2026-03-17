@@ -42,6 +42,16 @@ Currently the repository contains a `ckad/` folder with notes and manifests for 
   - `notes.md` — definition, key characteristics, and useful `kubectl` commands
   - One or more `*.yaml` — annotated example manifests
 
+The repository also includes a React tutorial website in `k8s-tutorial-app/` that visualizes CKAD notes and YAML examples.
+
+### Tutorial Website (React)
+
+```bash
+cd k8s-tutorial-app
+npm install
+npm run dev
+```
+
 ---
 
 ## CKAD Study Notes
@@ -53,6 +63,13 @@ Currently the repository contains a `ckad/` folder with notes and manifests for 
 | 01 | Pods | [notes.md](ckad/section_01_core_concepts/01_pods/notes.md) |
 | 02 | ReplicaSets | [notes.md](ckad/section_01_core_concepts/02_replicasets/notes.md) |
 | 03 | Deployments | [notes.md](ckad/section_01_core_concepts/03_deployments/notes.md) |
+| 04 | Namespaces | [notes.md](ckad/section_01_core_concepts/04_namespaces/notes.md) |
+
+### Section 02 — Configuration
+
+| # | Topic | Notes |
+|---|-------|-------|
+| 01 | Environment Variables | [notes.md](ckad/section_02_configuration/01_env_variables/notes.md) |
 
 > More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
 
