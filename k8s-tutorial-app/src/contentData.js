@@ -5,6 +5,10 @@ import secretsNotes from '../../ckad/section_02_configuration/02_secrets/notes.m
 import secretBasicYaml from '../../ckad/section_02_configuration/02_secrets/01_secret_basic.yaml?raw'
 import podSecretEntireYaml from '../../ckad/section_02_configuration/02_secrets/02_pod_secret_entire.yaml?raw'
 import podSecretSpecificKeyYaml from '../../ckad/section_02_configuration/02_secrets/03_pod_secret_specific_key.yaml?raw'
+import configMapsNotes from '../../ckad/section_02_configuration/03_configmaps/notes.md?raw'
+import configMapBasicYaml from '../../ckad/section_02_configuration/03_configmaps/01_configmap_basic.yaml?raw'
+import podConfigMapEntireYaml from '../../ckad/section_02_configuration/03_configmaps/02_pod_configmap_entire.yaml?raw'
+import podConfigMapSpecificKeyYaml from '../../ckad/section_02_configuration/03_configmaps/03_pod_configmap_specific_key.yaml?raw'
 import podYaml from '../../ckad/section_01_core_concepts/01_pods/01_pod_basic.yaml?raw'
 import replicaSetNotes from '../../ckad/section_01_core_concepts/02_replicasets/notes.md?raw'
 import replicaSetYaml from '../../ckad/section_01_core_concepts/02_replicasets/01_replicaset_basic.yaml?raw'
@@ -97,6 +101,31 @@ export const tutorialSections = [
             summary:
               'Injects only the username key from app-credentials into DB_USER using valueFrom.secretKeyRef.',
             yamlRaw: podSecretSpecificKeyYaml,
+          },
+        ],
+      },
+      {
+        id: 'configmaps',
+        title: 'ConfigMaps',
+        notesRaw: configMapsNotes,
+        examples: [
+          {
+            title: 'ConfigMap Resource',
+            summary:
+              'Defines a ConfigMap named app-settings with non-sensitive application settings stored under data.',
+            yamlRaw: configMapBasicYaml,
+          },
+          {
+            title: 'Use Entire ConfigMap In Pod',
+            summary:
+              'Imports all keys from app-settings into the container environment using envFrom.configMapRef.',
+            yamlRaw: podConfigMapEntireYaml,
+          },
+          {
+            title: 'Use Specific ConfigMap Key In Pod',
+            summary:
+              'Injects only the APP_COLOR key from app-settings into APP_COLOR using valueFrom.configMapKeyRef.',
+            yamlRaw: podConfigMapSpecificKeyYaml,
           },
         ],
       },
