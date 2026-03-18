@@ -320,6 +320,69 @@ spec:
           value: blue
         - name: APP_MODE    # another literal value
           value: production
-`,exampleSummary:`Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.`}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
+`,exampleSummary:`Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.`},{id:`secrets`,title:`Secrets`,notesRaw:`# Secrets
+
+## What is it?
+A Secret is a Kubernetes object used to store sensitive data, such as passwords, tokens, or keys, separately from Pod images and manifests. Pods can consume Secret values as environment variables or mounted files.
+
+## Key Characteristics
+- Secrets are namespaced resources, so they are accessed by Pods in the same namespace unless explicitly copied.
+- Data is stored as key-value pairs. In manifests, \`stringData\` accepts plaintext input and Kubernetes converts it to base64 under \`data\`.
+- Secrets can be consumed in multiple ways: \`envFrom\` (all keys), \`secretKeyRef\` (single key), or volume mounts (files).
+- Updating a Secret does not automatically restart Pods using env vars; rolling restart is typically needed for apps to pick up new values.
+- Base64 encoding is not encryption by itself. Use encryption at rest and strict RBAC in real clusters.
+
+## Commands
+\`\`\`kubectl
+# Create a secret from literals
+kubectl create secret generic app-credentials \\
+  --from-literal=username=ckad-user \\
+  --from-literal=password=s3cr3t-pass
+
+# Inspect secret keys (values are base64-encoded)
+kubectl get secret app-credentials -o yaml
+
+# Decode one key value
+kubectl get secret app-credentials -o jsonpath='{.data.username}' | base64 -d; echo
+
+# Use all keys from a secret as env vars in a generated Pod manifest
+kubectl run secret-entire-env --image=busybox:1.36 --dry-run=client -o yaml
+\`\`\`
+`,examples:[{title:`Secret Resource`,summary:`Defines an Opaque Secret named app-credentials with username and password keys via stringData.`,yamlRaw:`apiVersion: v1
+kind: Secret
+metadata:
+  name: app-credentials
+type: Opaque
+stringData:
+  username: ckad-user     # plaintext value; API server stores as base64 in data
+  password: s3cr3t-pass   # do not hardcode real secrets in production
+`},{title:`Use Entire Secret In Pod`,summary:`Imports all keys from app-credentials into the container environment using envFrom.secretRef.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-entire-env
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "env | grep -E 'username|password' && sleep 3600"]
+      envFrom:
+        - secretRef:
+            name: app-credentials  # import all keys as env vars
+`},{title:`Use Specific Secret Key In Pod`,summary:`Injects only the username key from app-credentials into DB_USER using valueFrom.secretKeyRef.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-specific-key
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo DB_USER=$DB_USER && sleep 3600"]
+      env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: app-credentials
+              key: username   # pull only the username key
+`}]}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
 `),n=t.match(/## What is it\?\n([\s\S]*?)(\n## |$)/),r=t.match(/## Key Characteristics\n([\s\S]*?)(\n## |$)/),i=t.match(/## Commands\s*\n```(?:kubectl)?\n([\s\S]*?)\n```/);return{whatIsIt:n?n[1].trim().replace(/\n+/g,` `):`Definition not available.`,keyCharacteristics:r?r[1].split(`
 `).map(e=>e.trim()).filter(e=>e.startsWith(`-`)).map(e=>e.replace(/^-\s*/,``)):[],commands:i?i[1].trim():`No commands found for this concept.`}}function h(e){return e.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g).filter(Boolean).map((e,t)=>e.startsWith(`**`)&&e.endsWith(`**`)?(0,f.jsx)(`strong`,{children:e.slice(2,-2)},`inline-${t}`):e.startsWith("`")&&e.endsWith("`")?(0,f.jsx)(`code`,{children:e.slice(1,-1)},`inline-${t}`):e.startsWith(`*`)&&e.endsWith(`*`)?(0,f.jsx)(`em`,{children:e.slice(1,-1)},`inline-${t}`):(0,f.jsx)(`span`,{children:e},`inline-${t}`))}(0,c.createRoot)(document.getElementById(`root`)).render((0,f.jsx)(l.StrictMode,{children:(0,f.jsx)(p,{})}));
