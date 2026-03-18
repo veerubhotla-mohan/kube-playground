@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-settings
+data:
+  APP_COLOR: blue          # non-sensitive application setting
+  APP_MODE: production     # another configuration value
