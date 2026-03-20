@@ -26,6 +26,11 @@ import podMultiContainerResourcesYaml from '../../ckad/section_02_configuration/
 import limitRangeNotes from '../../ckad/section_02_configuration/06_limitrange/notes.md?raw'
 import limitRangeDefaultsYaml from '../../ckad/section_02_configuration/06_limitrange/01_limitrange_container_defaults.yaml?raw'
 import podWithoutResourcesYaml from '../../ckad/section_02_configuration/06_limitrange/02_pod_without_resources.yaml?raw'
+import taintsAndTolerationsNotes from '../../ckad/section_02_configuration/07_taints_and_tolerations/notes.md?raw'
+import podToleratesNoScheduleYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/01_pod_tolerates_noschedule.yaml?raw'
+import podToleratesNoExecuteYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/02_pod_tolerates_noexecute.yaml?raw'
+import nodeSelectorsNotes from '../../ckad/section_02_configuration/08_node_selectors/notes.md?raw'
+import podNodeSelectorYaml from '../../ckad/section_02_configuration/08_node_selectors/01_pod_node_selector.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -194,6 +199,33 @@ export const tutorialSections = [
             yamlRaw: podWithoutResourcesYaml,
           },
         ],
+      },
+      {
+        id: 'taints-and-tolerations',
+        title: 'Taints and Tolerations',
+        notesRaw: taintsAndTolerationsNotes,
+        examples: [
+          {
+            title: 'Match a NoSchedule Taint',
+            summary:
+              'This Pod tolerates dedicated=batch:NoSchedule so the scheduler may place it on a node reserved for batch workloads.',
+            yamlRaw: podToleratesNoScheduleYaml,
+          },
+          {
+            title: 'Temporarily Tolerate NoExecute',
+            summary:
+              'This Pod uses operator Exists with tolerationSeconds so it can remain on a node for five minutes after a maintenance NoExecute taint is applied.',
+            yamlRaw: podToleratesNoExecuteYaml,
+          },
+        ],
+      },
+      {
+        id: 'node-selectors',
+        title: 'Node Selectors',
+        notesRaw: nodeSelectorsNotes,
+        yamlRaw: podNodeSelectorYaml,
+        exampleSummary:
+          'This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.',
       },
     ],
   },

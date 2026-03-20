@@ -75,6 +75,8 @@ npm run dev
 | 04 | Security Context | [notes.md](ckad/section_02_configuration/04_security_context/notes.md) |
 | 05 | Resource Requirements | [notes.md](ckad/section_02_configuration/05_resource_requirements/notes.md) |
 | 06 | LimitRange | [notes.md](ckad/section_02_configuration/06_limitrange/notes.md) |
+| 07 | Taints and Tolerations | [notes.md](ckad/section_02_configuration/07_taints_and_tolerations/notes.md) |
+| 08 | Node Selectors | [notes.md](ckad/section_02_configuration/08_node_selectors/notes.md) |
 
 > More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
 

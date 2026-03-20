@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-on-ssd
+spec:
+  nodeSelector:
+    disktype: ssd # Schedule only onto nodes labeled disktype=ssd
+    workload: api # All nodeSelector labels must match on the same node
+  containers:
+    - name: api
+      image: nginx:1.27
+      ports:
+        - containerPort: 80
