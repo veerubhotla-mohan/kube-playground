@@ -511,6 +511,258 @@ spec:
             - ALL # Drop all Linux capabilities for least privilege
       ports:
         - containerPort: 80
-`}]}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
+`}]},{id:`resource-requirements`,title:`Resource Requirements`,notesRaw:`# Resource Requirements
+
+## What is it?
+Resource requirements define how much CPU and memory a container asks for (\`requests\`) and the maximum it is allowed to use (\`limits\`). Kubernetes uses these values for Pod scheduling and runtime enforcement.
+
+## Key Characteristics
+- \`requests\` are the minimum resources guaranteed to a container for scheduling.
+- \`limits\` are hard caps on resource usage at runtime.
+- CPU is measured in cores or millicores (\`500m\` = 0.5 core).
+- Memory is measured in bytes (commonly \`Mi\` and \`Gi\`).
+- Scheduler places Pods based on sum of container \`requests\` in each Pod.
+- CPU limit overrun leads to **throttling**: the container usually keeps running, but Linux gives it fewer CPU time slices.
+- Memory limit overrun can lead to **OOMKill**: the container process is terminated if it exceeds its memory cgroup limit.
+- CPU is considered **compressible**: extra demand can be reduced by slowing execution.
+- Memory is effectively **non-compressible**: once allocated, it cannot be safely "slowed" in place, so eviction/kill is used under pressure.
+- Practical impact of CPU throttling: higher latency and slower throughput, but process survival is common.
+- Practical impact of memory OOM: container restarts, transient errors, and possible CrashLoopBackOff patterns.
+- If only \`limits\` are set, Kubernetes can copy limit values as requests in many clusters (defaulting behavior may vary by policy).
+- Namespace policies such as **LimitRange** can enforce min/max and inject defaults for missing requests/limits.
+
+## Commands
+\`\`\`kubectl
+# Create a Pod with CPU/memory requests and limits
+kubectl apply -f 01_pod_requests_limits.yaml
+
+# Inspect resource requests and limits for a Pod
+kubectl describe pod web-with-resources
+
+# View requests/limits via JSONPath
+kubectl get pod web-with-resources -o jsonpath='{.spec.containers[0].resources}'
+
+# Watch restart counts and reason if memory pressure causes OOMKill
+kubectl get pod web-with-resources -o wide
+kubectl describe pod web-with-resources
+
+# View namespace-level default/min/max policy that affects requests and limits
+kubectl get limitrange -n dev-team
+kubectl describe limitrange container-resource-policy -n dev-team
+
+# Validate manifest client-side
+kubectl apply --dry-run=client -f 01_pod_requests_limits.yaml
+kubectl apply --dry-run=client -f 02_pod_multiple_containers_resources.yaml
+\`\`\`
+`,examples:[{title:`Single Container Requests and Limits`,summary:`Defines CPU and memory requests for scheduling and limits for runtime enforcement in one nginx container.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: web-with-resources
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      resources:
+        requests:
+          cpu: "250m" # Guaranteed CPU for scheduling
+          memory: "128Mi" # Guaranteed memory for scheduling
+        limits:
+          cpu: "500m" # Max CPU before throttling
+          memory: "256Mi" # Max memory before OOM kill
+`},{title:`Multi-Container Resource Sizing`,summary:`Shows requests and limits per container in a sidecar Pod so scheduler decisions use the Pod-level sum.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-with-resources
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "while true; do date; sleep 10; done"]
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "128Mi"
+        limits:
+          cpu: "400m"
+          memory: "256Mi"
+    - name: logger
+      image: busybox:1.36
+      command: ["sh", "-c", "while true; do echo logging; sleep 15; done"]
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "200m"
+          memory: "128Mi"
+`}]},{id:`limitrange`,title:`LimitRange`,notesRaw:`# LimitRange
+
+## What is it?
+A LimitRange is a namespace-level policy that sets default, minimum, and maximum resource constraints for Pods or containers. It helps enforce consistent CPU and memory requests/limits without requiring every manifest author to define all values manually.
+
+## Key Characteristics
+- Applied per namespace using \`kind: LimitRange\`.
+- Can define \`defaultRequest\` values when requests are omitted.
+- Can define \`default\` values when limits are omitted.
+- Can enforce \`min\` and \`max\` values for CPU and memory.
+- Can enforce request-to-limit relationships with \`maxLimitRequestRatio\`.
+- Admission control rejects resources outside policy constraints.
+- Commonly used together with \`ResourceQuota\` for stronger governance.
+
+## Commands
+\`\`\`kubectl
+# Create a namespace policy for default and bounded resources
+kubectl apply -f 01_limitrange_container_defaults.yaml
+
+# Inspect LimitRange policy details
+kubectl describe limitrange container-resource-policy -n dev-team
+
+# Try creating a Pod and let defaults be injected
+kubectl apply -f 02_pod_without_resources.yaml -n dev-team
+
+# Check effective requests/limits after admission
+kubectl get pod demo-no-resources -n dev-team -o yaml
+
+# Validate manifests client-side
+kubectl apply --dry-run=client -f 01_limitrange_container_defaults.yaml
+kubectl apply --dry-run=client -f 02_pod_without_resources.yaml
+\`\`\`
+`,examples:[{title:`Container Defaults and Bounds`,summary:`Defines default requests/limits plus min and max resource boundaries for all containers in a namespace.`,yamlRaw:`apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-resource-policy
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: "100m" # Used if a container request is omitted
+        memory: "128Mi"
+      default:
+        cpu: "300m" # Used if a container limit is omitted
+        memory: "256Mi"
+      min:
+        cpu: "50m" # Lower bound allowed per container
+        memory: "64Mi"
+      max:
+        cpu: "1"
+        memory: "512Mi"
+      maxLimitRequestRatio:
+        cpu: "4" # limit/request ratio cap for CPU
+        memory: "2" # limit/request ratio cap for memory
+`},{title:`Pod Without Explicit Resources`,summary:`A Pod that omits resources so LimitRange admission defaults can be injected automatically.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-no-resources
+spec:
+  containers:
+    - name: web
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+`}]},{id:`taints-and-tolerations`,title:`Taints and Tolerations`,notesRaw:`# Taints and Tolerations
+
+## What is it?
+A taint is a property applied to a Node that repels Pods, while a toleration is a Pod setting that allows the Pod to be scheduled onto, or continue running on, a tainted Node. They are used together to control placement for special-purpose nodes such as dedicated, GPU, or maintenance pools.
+
+## Key Characteristics
+- Taints live on Nodes and use the format \`key=value:effect\`.
+- Tolerations live in the Pod spec under \`spec.tolerations\`.
+- A toleration allows scheduling onto a matching tainted Node, but it does not force the Pod onto that Node.
+- \`NoSchedule\` blocks new Pods from being scheduled onto the node unless they have a matching toleration.
+- \`PreferNoSchedule\` is a soft rule: the scheduler tries to avoid placing Pods there, but may still do so if needed.
+- \`NoExecute\` prevents new non-tolerating Pods from landing on the node and also evicts existing Pods that do not tolerate the taint.
+- \`operator: Equal\` matches on key and value, while \`operator: Exists\` matches only on the key.
+- \`NoExecute\` can evict already-running Pods unless they tolerate the taint.
+- \`tolerationSeconds\` applies only to \`NoExecute\` and controls how long a Pod may remain after the taint is added.
+- For dedicated nodes, taints are commonly combined with labels plus \`nodeSelector\` or affinity.
+
+## Commands
+\`\`\`kubectl
+# Add a taint to a node so ordinary Pods avoid it
+kubectl taint nodes worker-1 dedicated=batch:NoSchedule
+
+# Verify the taint on the node
+kubectl describe node worker-1
+
+# Create a Pod with a NoSchedule toleration
+kubectl apply -f <manifest.yaml>
+
+# Create a Pod with a NoExecute toleration (optionally with tolerationSeconds)
+kubectl apply -f <manifest.yaml>
+
+# Remove the taint from the node
+kubectl taint nodes worker-1 dedicated=batch:NoSchedule-
+
+# Validate a manifest client-side
+kubectl apply --dry-run=client -f <manifest.yaml>
+\`\`\``,examples:[{title:`Match a NoSchedule Taint`,summary:`This Pod tolerates dedicated=batch:NoSchedule so the scheduler may place it on a node reserved for batch workloads.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: batch-worker
+spec:
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: batch
+      effect: NoSchedule # Allow scheduling onto nodes tainted for batch work
+  containers:
+    - name: worker
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]`},{title:`Temporarily Tolerate NoExecute`,summary:`This Pod uses operator Exists with tolerationSeconds so it can remain on a node for five minutes after a maintenance NoExecute taint is applied.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: maintenance-aware-app
+spec:
+  tolerations:
+    - key: maintenance
+      operator: Exists
+      effect: NoExecute
+      tolerationSeconds: 300 # Stay bound for 5 minutes after the taint appears
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "sleep 3600"]`}]},{id:`node-selectors`,title:`Node Selectors`,notesRaw:`# Node Selectors
+
+## What is it?
+A node selector is the simplest way to constrain a Pod so Kubernetes schedules it only onto Nodes that have specific labels. The scheduler performs an exact label match: every key and value listed in \`spec.nodeSelector\` must already exist on the target Node.
+
+## Key Characteristics
+- Defined in the Pod spec under \`spec.nodeSelector\`.
+- Uses exact key-value matches only; there are no operators such as \`In\` or \`NotIn\`.
+- All listed labels must match for the Pod to be scheduled.
+- If no Node has the required labels, the Pod stays in \`Pending\`.
+- Commonly used for simple placement rules such as SSD nodes, regional nodes, or dedicated hardware pools.
+- Works well for basic scheduling, but becomes limiting when you need expressions or soft preferences.
+- Node selectors rely on labels already being present on Nodes.
+
+## Commands
+\`\`\`kubectl
+# Add a label to a node so Pods can target it
+kubectl label nodes worker-1 disktype=ssd
+
+# Verify node labels
+kubectl get nodes --show-labels
+
+# Create a Pod with a nodeSelector
+kubectl apply -f <manifest.yaml>
+
+# Inspect why a Pod is or is not scheduled
+kubectl describe pod api-on-ssd
+
+# Validate a manifest client-side
+kubectl apply --dry-run=client -f <manifest.yaml>
+\`\`\``,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: api-on-ssd
+spec:
+  nodeSelector:
+    disktype: ssd # Schedule only onto nodes labeled disktype=ssd
+    workload: api # All nodeSelector labels must match on the same node
+  containers:
+    - name: api
+      image: nginx:1.27
+      ports:
+        - containerPort: 80`,exampleSummary:`This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.`}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
 `),n=t.match(/## What is it\?\n([\s\S]*?)(\n## |$)/),r=t.match(/## Key Characteristics\n([\s\S]*?)(\n## |$)/),i=t.match(/## Commands\s*\n```(?:kubectl)?\n([\s\S]*?)\n```/);return{whatIsIt:n?n[1].trim().replace(/\n+/g,` `):`Definition not available.`,keyCharacteristics:r?r[1].split(`
 `).map(e=>e.trim()).filter(e=>e.startsWith(`-`)).map(e=>e.replace(/^-\s*/,``)):[],commands:i?i[1].trim():`No commands found for this concept.`}}function h(e){return e.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g).filter(Boolean).map((e,t)=>e.startsWith(`**`)&&e.endsWith(`**`)?(0,f.jsx)(`strong`,{children:e.slice(2,-2)},`inline-${t}`):e.startsWith("`")&&e.endsWith("`")?(0,f.jsx)(`code`,{children:e.slice(1,-1)},`inline-${t}`):e.startsWith(`*`)&&e.endsWith(`*`)?(0,f.jsx)(`em`,{children:e.slice(1,-1)},`inline-${t}`):(0,f.jsx)(`span`,{children:e},`inline-${t}`))}(0,c.createRoot)(document.getElementById(`root`)).render((0,f.jsx)(l.StrictMode,{children:(0,f.jsx)(p,{})}));
