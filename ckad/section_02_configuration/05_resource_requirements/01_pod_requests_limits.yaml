@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-with-resources
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      resources:
+        requests:
+          cpu: "250m" # Guaranteed CPU for scheduling
+          memory: "128Mi" # Guaranteed memory for scheduling
+        limits:
+          cpu: "500m" # Max CPU before throttling
+          memory: "256Mi" # Max memory before OOM kill

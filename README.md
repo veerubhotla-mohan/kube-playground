@@ -73,6 +73,8 @@ npm run dev
 | 02 | Secrets | [notes.md](ckad/section_02_configuration/02_secrets/notes.md) |
 | 03 | ConfigMaps | [notes.md](ckad/section_02_configuration/03_configmaps/notes.md) |
 | 04 | Security Context | [notes.md](ckad/section_02_configuration/04_security_context/notes.md) |
+| 05 | Resource Requirements | [notes.md](ckad/section_02_configuration/05_resource_requirements/notes.md) |
+| 06 | LimitRange | [notes.md](ckad/section_02_configuration/06_limitrange/notes.md) |
 
 > More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
 

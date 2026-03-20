@@ -20,6 +20,12 @@ import namespaceYaml from '../../ckad/section_01_core_concepts/04_namespaces/01_
 import securityContextNotes from '../../ckad/section_02_configuration/04_security_context/notes.md?raw'
 import podSecurityContextYaml from '../../ckad/section_02_configuration/04_security_context/01_pod_security_context.yaml?raw'
 import podContainerSecurityOverrideYaml from '../../ckad/section_02_configuration/04_security_context/02_pod_container_security_override.yaml?raw'
+import resourceRequirementsNotes from '../../ckad/section_02_configuration/05_resource_requirements/notes.md?raw'
+import podRequestsLimitsYaml from '../../ckad/section_02_configuration/05_resource_requirements/01_pod_requests_limits.yaml?raw'
+import podMultiContainerResourcesYaml from '../../ckad/section_02_configuration/05_resource_requirements/02_pod_multiple_containers_resources.yaml?raw'
+import limitRangeNotes from '../../ckad/section_02_configuration/06_limitrange/notes.md?raw'
+import limitRangeDefaultsYaml from '../../ckad/section_02_configuration/06_limitrange/01_limitrange_container_defaults.yaml?raw'
+import podWithoutResourcesYaml from '../../ckad/section_02_configuration/06_limitrange/02_pod_without_resources.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -148,6 +154,44 @@ export const tutorialSections = [
             summary:
               'Overrides pod-level runAsUser in one container and drops all Linux capabilities at container scope.',
             yamlRaw: podContainerSecurityOverrideYaml,
+          },
+        ],
+      },
+      {
+        id: 'resource-requirements',
+        title: 'Resource Requirements',
+        notesRaw: resourceRequirementsNotes,
+        examples: [
+          {
+            title: 'Single Container Requests and Limits',
+            summary:
+              'Defines CPU and memory requests for scheduling and limits for runtime enforcement in one nginx container.',
+            yamlRaw: podRequestsLimitsYaml,
+          },
+          {
+            title: 'Multi-Container Resource Sizing',
+            summary:
+              'Shows requests and limits per container in a sidecar Pod so scheduler decisions use the Pod-level sum.',
+            yamlRaw: podMultiContainerResourcesYaml,
+          },
+        ],
+      },
+      {
+        id: 'limitrange',
+        title: 'LimitRange',
+        notesRaw: limitRangeNotes,
+        examples: [
+          {
+            title: 'Container Defaults and Bounds',
+            summary:
+              'Defines default requests/limits plus min and max resource boundaries for all containers in a namespace.',
+            yamlRaw: limitRangeDefaultsYaml,
+          },
+          {
+            title: 'Pod Without Explicit Resources',
+            summary:
+              'A Pod that omits resources so LimitRange admission defaults can be injected automatically.',
+            yamlRaw: podWithoutResourcesYaml,
           },
         ],
       },
