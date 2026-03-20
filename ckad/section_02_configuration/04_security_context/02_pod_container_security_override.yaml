@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-nginx-override
+spec:
+  securityContext:
+    runAsUser: 1000 # Pod default UID for containers unless overridden
+  containers:
+    - name: app
+      image: nginx:1.25
+      securityContext:
+        runAsUser: 2000 # Overrides Pod-level runAsUser for this container
+        capabilities:
+          drop:
+            - ALL # Drop all Linux capabilities for least privilege
+      ports:
+        - containerPort: 80

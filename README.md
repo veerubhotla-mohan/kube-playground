@@ -72,6 +72,7 @@ npm run dev
 | 01 | Environment Variables | [notes.md](ckad/section_02_configuration/01_env_variables/notes.md) |
 | 02 | Secrets | [notes.md](ckad/section_02_configuration/02_secrets/notes.md) |
 | 03 | ConfigMaps | [notes.md](ckad/section_02_configuration/03_configmaps/notes.md) |
+| 04 | Security Context | [notes.md](ckad/section_02_configuration/04_security_context/notes.md) |
 
 > More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
 

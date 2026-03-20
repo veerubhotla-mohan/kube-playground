@@ -17,6 +17,9 @@ import deploymentYaml from '../../ckad/section_01_core_concepts/03_deployments/0
 import deploymentRecreateYaml from '../../ckad/section_01_core_concepts/03_deployments/02_deployment_recreate.yaml?raw'
 import namespaceNotes from '../../ckad/section_01_core_concepts/04_namespaces/notes.md?raw'
 import namespaceYaml from '../../ckad/section_01_core_concepts/04_namespaces/01_namespace_basic.yaml?raw'
+import securityContextNotes from '../../ckad/section_02_configuration/04_security_context/notes.md?raw'
+import podSecurityContextYaml from '../../ckad/section_02_configuration/04_security_context/01_pod_security_context.yaml?raw'
+import podContainerSecurityOverrideYaml from '../../ckad/section_02_configuration/04_security_context/02_pod_container_security_override.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -126,6 +129,25 @@ export const tutorialSections = [
             summary:
               'Injects only the APP_COLOR key from app-settings into APP_COLOR using valueFrom.configMapKeyRef.',
             yamlRaw: podConfigMapSpecificKeyYaml,
+          },
+        ],
+      },
+      {
+        id: 'security-context',
+        title: 'Security Context',
+        notesRaw: securityContextNotes,
+        examples: [
+          {
+            title: 'Pod-Level runAsUser',
+            summary:
+              'Defines a Pod-level runAsUser value that acts as the default UID for containers in the Pod.',
+            yamlRaw: podSecurityContextYaml,
+          },
+          {
+            title: 'Container Override + Capabilities',
+            summary:
+              'Overrides pod-level runAsUser in one container and drops all Linux capabilities at container scope.',
+            yamlRaw: podContainerSecurityOverrideYaml,
           },
         ],
       },
