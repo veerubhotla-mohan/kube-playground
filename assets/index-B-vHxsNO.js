@@ -441,6 +441,76 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: app-settings
-              key: APP_COLOR   # pull only one key from the ConfigMap`}]}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
+              key: APP_COLOR   # pull only one key from the ConfigMap`}]},{id:`security-context`,title:`Security Context`,notesRaw:`# Security Context
+
+## What is it?
+Security Context defines privilege and access controls for a Pod or container. It is used to control how processes run, which Linux user/group they run as, and what capabilities they have.
+
+## Key Characteristics
+- Can be set at Pod level (\`spec.securityContext\`) and container level (\`spec.containers[].securityContext\`).
+- Pod-level settings apply by default to all containers unless overridden at container level.
+- Container-level \`securityContext\` takes precedence for overlapping fields.
+- Focus for this module: \`runAsUser\` and \`capabilities\`.
+- \`runAsUser\` can be defined at Pod or container scope.
+- \`capabilities\` are configured at container scope.
+- Helps enforce least privilege and reduce container breakout risk.
+
+## Pod vs Container Level (and Precedence)
+- Pod level (\`spec.securityContext\`): sets defaults for all containers in the Pod.
+- Container level (\`spec.containers[].securityContext\`): applies only to that container and is where \`capabilities\` are defined.
+- If both define \`runAsUser\`, container-level value wins.
+- If only pod-level \`runAsUser\` exists, containers inherit it.
+
+Quick precedence rule for exams:
+- \`runAsUser\` at both pod and container scope -> container value wins.
+- \`capabilities\` -> set under \`spec.containers[].securityContext\`.
+
+## Commands
+\`\`\`kubectl
+# Create a pod with a security context
+kubectl apply -f 01_pod_security_context.yaml
+
+# Verify pod-level runAsUser
+kubectl get pod secure-nginx -o yaml
+
+# Check container security context fields quickly
+kubectl get pod secure-nginx -o jsonpath='{.spec.containers[0].securityContext}'
+
+# Show pod-level defaults vs container-level override
+kubectl get pod secure-nginx-override -o yaml
+
+# Validate a manifest client-side (exam-friendly habit)
+kubectl apply --dry-run=client -f 02_pod_container_security_override.yaml
+\`\`\`
+`,examples:[{title:`Pod-Level runAsUser`,summary:`Defines a Pod-level runAsUser value that acts as the default UID for containers in the Pod.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-nginx
+spec:
+  securityContext:
+    runAsUser: 1000 # Default Linux UID for all containers in this Pod
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+`},{title:`Container Override + Capabilities`,summary:`Overrides pod-level runAsUser in one container and drops all Linux capabilities at container scope.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-nginx-override
+spec:
+  securityContext:
+    runAsUser: 1000 # Pod default UID for containers unless overridden
+  containers:
+    - name: app
+      image: nginx:1.25
+      securityContext:
+        runAsUser: 2000 # Overrides Pod-level runAsUser for this container
+        capabilities:
+          drop:
+            - ALL # Drop all Linux capabilities for least privilege
+      ports:
+        - containerPort: 80
+`}]}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>m(a.notesRaw),[a]);function s(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>s(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:h(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:h(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]})]})}function m(e){let t=e.replace(/\r\n/g,`
 `),n=t.match(/## What is it\?\n([\s\S]*?)(\n## |$)/),r=t.match(/## Key Characteristics\n([\s\S]*?)(\n## |$)/),i=t.match(/## Commands\s*\n```(?:kubectl)?\n([\s\S]*?)\n```/);return{whatIsIt:n?n[1].trim().replace(/\n+/g,` `):`Definition not available.`,keyCharacteristics:r?r[1].split(`
 `).map(e=>e.trim()).filter(e=>e.startsWith(`-`)).map(e=>e.replace(/^-\s*/,``)):[],commands:i?i[1].trim():`No commands found for this concept.`}}function h(e){return e.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g).filter(Boolean).map((e,t)=>e.startsWith(`**`)&&e.endsWith(`**`)?(0,f.jsx)(`strong`,{children:e.slice(2,-2)},`inline-${t}`):e.startsWith("`")&&e.endsWith("`")?(0,f.jsx)(`code`,{children:e.slice(1,-1)},`inline-${t}`):e.startsWith(`*`)&&e.endsWith(`*`)?(0,f.jsx)(`em`,{children:e.slice(1,-1)},`inline-${t}`):(0,f.jsx)(`span`,{children:e},`inline-${t}`))}(0,c.createRoot)(document.getElementById(`root`)).render((0,f.jsx)(l.StrictMode,{children:(0,f.jsx)(p,{})}));
