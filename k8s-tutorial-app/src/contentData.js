@@ -17,6 +17,20 @@ import deploymentYaml from '../../ckad/section_01_core_concepts/03_deployments/0
 import deploymentRecreateYaml from '../../ckad/section_01_core_concepts/03_deployments/02_deployment_recreate.yaml?raw'
 import namespaceNotes from '../../ckad/section_01_core_concepts/04_namespaces/notes.md?raw'
 import namespaceYaml from '../../ckad/section_01_core_concepts/04_namespaces/01_namespace_basic.yaml?raw'
+import securityContextNotes from '../../ckad/section_02_configuration/04_security_context/notes.md?raw'
+import podSecurityContextYaml from '../../ckad/section_02_configuration/04_security_context/01_pod_security_context.yaml?raw'
+import podContainerSecurityOverrideYaml from '../../ckad/section_02_configuration/04_security_context/02_pod_container_security_override.yaml?raw'
+import resourceRequirementsNotes from '../../ckad/section_02_configuration/05_resource_requirements/notes.md?raw'
+import podRequestsLimitsYaml from '../../ckad/section_02_configuration/05_resource_requirements/01_pod_requests_limits.yaml?raw'
+import podMultiContainerResourcesYaml from '../../ckad/section_02_configuration/05_resource_requirements/02_pod_multiple_containers_resources.yaml?raw'
+import limitRangeNotes from '../../ckad/section_02_configuration/06_limitrange/notes.md?raw'
+import limitRangeDefaultsYaml from '../../ckad/section_02_configuration/06_limitrange/01_limitrange_container_defaults.yaml?raw'
+import podWithoutResourcesYaml from '../../ckad/section_02_configuration/06_limitrange/02_pod_without_resources.yaml?raw'
+import taintsAndTolerationsNotes from '../../ckad/section_02_configuration/07_taints_and_tolerations/notes.md?raw'
+import podToleratesNoScheduleYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/01_pod_tolerates_noschedule.yaml?raw'
+import podToleratesNoExecuteYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/02_pod_tolerates_noexecute.yaml?raw'
+import nodeSelectorsNotes from '../../ckad/section_02_configuration/08_node_selectors/notes.md?raw'
+import podNodeSelectorYaml from '../../ckad/section_02_configuration/08_node_selectors/01_pod_node_selector.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -128,6 +142,90 @@ export const tutorialSections = [
             yamlRaw: podConfigMapSpecificKeyYaml,
           },
         ],
+      },
+      {
+        id: 'security-context',
+        title: 'Security Context',
+        notesRaw: securityContextNotes,
+        examples: [
+          {
+            title: 'Pod-Level runAsUser',
+            summary:
+              'Defines a Pod-level runAsUser value that acts as the default UID for containers in the Pod.',
+            yamlRaw: podSecurityContextYaml,
+          },
+          {
+            title: 'Container Override + Capabilities',
+            summary:
+              'Overrides pod-level runAsUser in one container and drops all Linux capabilities at container scope.',
+            yamlRaw: podContainerSecurityOverrideYaml,
+          },
+        ],
+      },
+      {
+        id: 'resource-requirements',
+        title: 'Resource Requirements',
+        notesRaw: resourceRequirementsNotes,
+        examples: [
+          {
+            title: 'Single Container Requests and Limits',
+            summary:
+              'Defines CPU and memory requests for scheduling and limits for runtime enforcement in one nginx container.',
+            yamlRaw: podRequestsLimitsYaml,
+          },
+          {
+            title: 'Multi-Container Resource Sizing',
+            summary:
+              'Shows requests and limits per container in a sidecar Pod so scheduler decisions use the Pod-level sum.',
+            yamlRaw: podMultiContainerResourcesYaml,
+          },
+        ],
+      },
+      {
+        id: 'limitrange',
+        title: 'LimitRange',
+        notesRaw: limitRangeNotes,
+        examples: [
+          {
+            title: 'Container Defaults and Bounds',
+            summary:
+              'Defines default requests/limits plus min and max resource boundaries for all containers in a namespace.',
+            yamlRaw: limitRangeDefaultsYaml,
+          },
+          {
+            title: 'Pod Without Explicit Resources',
+            summary:
+              'A Pod that omits resources so LimitRange admission defaults can be injected automatically.',
+            yamlRaw: podWithoutResourcesYaml,
+          },
+        ],
+      },
+      {
+        id: 'taints-and-tolerations',
+        title: 'Taints and Tolerations',
+        notesRaw: taintsAndTolerationsNotes,
+        examples: [
+          {
+            title: 'Match a NoSchedule Taint',
+            summary:
+              'This Pod tolerates dedicated=batch:NoSchedule so the scheduler may place it on a node reserved for batch workloads.',
+            yamlRaw: podToleratesNoScheduleYaml,
+          },
+          {
+            title: 'Temporarily Tolerate NoExecute',
+            summary:
+              'This Pod uses operator Exists with tolerationSeconds so it can remain on a node for five minutes after a maintenance NoExecute taint is applied.',
+            yamlRaw: podToleratesNoExecuteYaml,
+          },
+        ],
+      },
+      {
+        id: 'node-selectors',
+        title: 'Node Selectors',
+        notesRaw: nodeSelectorsNotes,
+        yamlRaw: podNodeSelectorYaml,
+        exampleSummary:
+          'This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.',
       },
     ],
   },
