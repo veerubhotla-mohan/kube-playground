@@ -45,6 +45,49 @@ body {
   border-radius: 22px;
   background: linear-gradient(125deg, #ffffff, #f2f8f4);
   box-shadow: var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-actions {
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.btn-terminal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 4px 12px rgba(31, 122, 89, 0.3);
+}
+
+.btn-terminal:hover {
+  background: #185e44;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(31, 122, 89, 0.4);
+}
+
+.btn-terminal-icon {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.05em;
 }
 
 .eyebrow {
@@ -260,4 +303,211 @@ code {
   .card {
     border-radius: 16px;
   }
+}
+
+/* ── Terminal overlay ────────────────────────────────── */
+
+.terminal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 18, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 200ms ease both;
+}
+
+.terminal-panel {
+  width: min(940px, 92vw);
+  height: min(580px, 82vh);
+  background: #101a1a;
+  border: 1px solid #2a4040;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65);
+  animation: slideUp 250ms ease both;
+}
+
+/* ── Header bar ──────────────────────────────────────── */
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #0c1515;
+  border-bottom: 1px solid #1e3030;
+  flex-shrink: 0;
+}
+
+.terminal-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.terminal-dot.red    { background: #ff5f57; }
+.terminal-dot.yellow { background: #febc2e; }
+.terminal-dot.green  { background: #28c840; }
+
+/* ── Tab bar ─────────────────────────────────────────── */
+
+.terminal-tabs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.terminal-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.terminal-tab:hover {
+  background: #1e3030;
+}
+
+.terminal-tab.active {
+  background: #1e3030;
+  border-color: #2a4040;
+}
+
+.terminal-tab-btn {
+  background: none;
+  border: none;
+  color: #6a9090;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  padding: 5px 8px 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.terminal-tab.active .terminal-tab-btn {
+  color: #def3ef;
+}
+
+.terminal-tab-close {
+  background: none;
+  border: none;
+  color: #3a5f5f;
+  font-size: 0.65rem;
+  padding: 5px 8px 5px 2px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.terminal-tab-close:hover {
+  color: #ff5f57;
+  background: rgba(255, 95, 87, 0.12);
+}
+
+.terminal-tab-add {
+  background: none;
+  border: 1px dashed #2a4040;
+  color: #6a9090;
+  font-size: 1rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.terminal-tab-add:hover {
+  background: #1e3030;
+  border-color: #1f7a59;
+  color: #28c840;
+}
+
+/* ── Panel close button ──────────────────────────────── */
+
+.terminal-close {
+  background: none;
+  border: none;
+  color: #6a9090;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.terminal-close:hover {
+  background: #1e3030;
+  color: #def3ef;
+}
+
+/* ── Terminal body — stacked instances ───────────────── */
+
+.terminal-body {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* All instances are absolutely stacked so xterm can always measure dims */
+.terminal-instance {
+  position: absolute;
+  inset: 0;
+  padding: 10px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.terminal-instance.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.terminal-instance .xterm {
+  height: 100%;
+}
+
+.terminal-instance .xterm-viewport {
+  overflow-y: hidden !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }

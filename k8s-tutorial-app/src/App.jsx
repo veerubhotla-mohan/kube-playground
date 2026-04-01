@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { tutorialSections } from './contentData'
+import { TerminalPanel } from './TerminalPanel'
 import './index.css'
 
 function App() {
   const [activeSectionId, setActiveSectionId] = useState(tutorialSections[0].id)
+  const [showTerminal, setShowTerminal] = useState(false)
 
   const activeSection = useMemo(
     () => tutorialSections.find((section) => section.id === activeSectionId),
@@ -32,13 +34,27 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <p className="eyebrow">CKAD Preparation</p>
-        <h1>Kubernetes Tutorial</h1>
-        <p className="subtitle">
-          Navigate through CKAD topics, read concise explanations, and inspect
-          real YAML manifests from this repository.
-        </p>
+        <div className="header-text">
+          <p className="eyebrow">CKAD Preparation</p>
+          <h1>Kubernetes Tutorial</h1>
+          <p className="subtitle">
+            Navigate through CKAD topics, read concise explanations, and inspect
+            real YAML manifests from this repository.
+          </p>
+        </div>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="btn-terminal"
+            onClick={() => setShowTerminal(true)}
+          >
+            <span className="btn-terminal-icon">&gt;_</span>
+            Open Terminal
+          </button>
+        </div>
       </header>
+
+      {showTerminal && <TerminalPanel onClose={() => setShowTerminal(false)} />}
 
       <div className="layout">
         <aside className="sidebar">
