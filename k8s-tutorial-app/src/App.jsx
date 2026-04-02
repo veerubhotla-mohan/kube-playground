@@ -23,6 +23,31 @@ function App() {
 
   const parsedNotes = useMemo(() => parseNotes(activeConcept.notesRaw), [activeConcept])
 
+  const [progressOpen, setProgressOpen] = useState(false)
+  const [completed, setCompleted] = useState(() => {
+    try {
+      const stored = localStorage.getItem('ckad-progress')
+      return new Set(stored ? JSON.parse(stored) : [])
+    } catch {
+      return new Set()
+    }
+  })
+
+  function toggleCompleted(conceptId) {
+    setCompleted((prev) => {
+      const next = new Set(prev)
+      if (next.has(conceptId)) {
+        next.delete(conceptId)
+      } else {
+        next.add(conceptId)
+      }
+      try {
+        localStorage.setItem('ckad-progress', JSON.stringify([...next]))
+      } catch {}
+      return next
+    })
+  }
+
   function onSelectSection(sectionId) {
     const section = tutorialSections.find((item) => item.id === sectionId)
     setActiveSectionId(sectionId)
@@ -124,6 +149,96 @@ function App() {
           </section>
         </main>
       </div>
+
+      <button
+        type="button"
+        className="progress-fab"
+        onClick={() => setProgressOpen((o) => !o)}
+        aria-label="Toggle progress tracker"
+      >
+        {progressOpen ? '✕' : '📋'}
+      </button>
+
+      {progressOpen && (
+        <div className="progress-backdrop" onClick={() => setProgressOpen(false)} />
+      )}
+
+      <div className={progressOpen ? 'progress-drawer open' : 'progress-drawer'}>
+        <div className="progress-drawer-header">
+          <h2>Progress Tracker</h2>
+          <button
+            type="button"
+            className="progress-drawer-close"
+            onClick={() => setProgressOpen(false)}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="progress-drawer-body">
+          <ProgressTracker
+            sections={tutorialSections}
+            completed={completed}
+            onToggle={toggleCompleted}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProgressTracker({ sections, completed, onToggle }) {
+  const totalConcepts = sections.reduce((sum, s) => sum + s.concepts.length, 0)
+  const completedCount = sections.reduce(
+    (sum, s) => sum + s.concepts.filter((c) => completed.has(c.id)).length,
+    0,
+  )
+  const pct = totalConcepts ? Math.round((completedCount / totalConcepts) * 100) : 0
+
+  return (
+    <div className="progress-tracker">
+      <div className="progress-overview">
+        <p className="progress-overview-count">
+          {completedCount} of {totalConcepts} topics completed ({pct}%)
+        </p>
+        <div className="progress-bar-wrap">
+          <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      {sections.map((section, si) => {
+        const sectionDone = section.concepts.filter((c) => completed.has(c.id)).length
+        return (
+          <div
+            key={section.id}
+            className="progress-section animate-in"
+            style={{ animationDelay: `${(si + 1) * 60}ms` }}
+          >
+            <div className="progress-section-header">
+              <h3>{section.label}</h3>
+              <span className="progress-badge">
+                {sectionDone}/{section.concepts.length}
+              </span>
+            </div>
+            <ul className="progress-checklist">
+              {section.concepts.map((concept) => (
+                <li key={concept.id} className="progress-item">
+                  <label className="progress-label">
+                    <input
+                      type="checkbox"
+                      checked={completed.has(concept.id)}
+                      onChange={() => onToggle(concept.id)}
+                    />
+                    <span className={completed.has(concept.id) ? 'progress-topic done' : 'progress-topic'}>
+                      {concept.title}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      })}
     </div>
   )
 }
