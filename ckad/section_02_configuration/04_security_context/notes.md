@@ -24,18 +24,56 @@ Quick precedence rule for exams:
 
 ## Commands
 ```kubectl
-# Create a pod with a security context
-kubectl apply -f 01_pod_security_context.yaml
+# Apply a Pod with a security context
+kubectl apply -f pod.yaml
 
-# Verify pod-level runAsUser
-kubectl get pod secure-nginx -o yaml
+# Verify which UID a running container is using
+kubectl exec <pod-name> -- id
 
-# Check container security context fields quickly
-kubectl get pod secure-nginx -o jsonpath='{.spec.containers[0].securityContext}'
+# Inspect the security context fields of a live Pod
+kubectl get pod <pod-name> -o jsonpath='{.spec.securityContext}'
+kubectl get pod <pod-name> -o jsonpath='{.spec.containers[0].securityContext}'
 
-# Show pod-level defaults vs container-level override
-kubectl get pod secure-nginx-override -o yaml
-
-# Validate a manifest client-side (exam-friendly habit)
-kubectl apply --dry-run=client -f 02_pod_container_security_override.yaml
+# Describe a Pod (shows securityContext under containers section)
+kubectl describe pod <pod-name>
 ```
+
+## Setting runAsUser
+
+### Pod level — applies to all containers as a default
+```yaml
+spec:
+  securityContext:
+    runAsUser: 1000   # all containers run as UID 1000 unless overridden
+  containers:
+    - name: app
+      image: nginx
+```
+
+### Container level — overrides the pod-level value for that container
+```yaml
+spec:
+  securityContext:
+    runAsUser: 1000
+  containers:
+    - name: app
+      image: nginx
+      securityContext:
+        runAsUser: 2000   # this container runs as UID 2000 instead
+```
+
+## Adding or Dropping Linux Capabilities
+Capabilities are always set at **container** scope under `securityContext.capabilities`:
+
+```yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      securityContext:
+        capabilities:
+          add: ["NET_ADMIN", "SYS_TIME"]   # grant extra capabilities
+          drop: ["ALL"]                     # remove all default capabilities
+```
+
+> `add` and `drop` can be used together. `drop: ["ALL"]` first, then `add` is a common least-privilege pattern.

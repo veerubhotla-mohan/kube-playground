@@ -29,8 +29,9 @@ import podWithoutResourcesYaml from '../../ckad/section_02_configuration/06_limi
 import taintsAndTolerationsNotes from '../../ckad/section_02_configuration/07_taints_and_tolerations/notes.md?raw'
 import podToleratesNoScheduleYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/01_pod_tolerates_noschedule.yaml?raw'
 import podToleratesNoExecuteYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/02_pod_tolerates_noexecute.yaml?raw'
-import nodeSelectorsNotes from '../../ckad/section_02_configuration/08_node_selectors/notes.md?raw'
-import podNodeSelectorYaml from '../../ckad/section_02_configuration/08_node_selectors/01_pod_node_selector.yaml?raw'
+import nodeAffinityNotes from '../../ckad/section_02_configuration/09_node_affinity/notes.md?raw'
+import podRequiredAffinityInYaml from '../../ckad/section_02_configuration/09_node_affinity/01_pod_required_affinity_in.yaml?raw'
+import podPreferredAffinityExistsYaml from '../../ckad/section_02_configuration/09_node_affinity/02_pod_preferred_affinity_exists.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -131,6 +132,10 @@ export const tutorialSections = [
         notesRaw: envNotes,
         yamlRaw: envLiteralYaml,
         exampleSummary: 'Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.',
+        practice: [
+          { id: 'env-p1', title: 'Set an environment variable on a Pod created with kubectl' },
+          { id: 'env-p2', title: 'Set an environment variable on a Pod created with a YAML definition file' },
+        ],
       },
       {
         id: 'secrets',
@@ -155,6 +160,12 @@ export const tutorialSections = [
               'Injects only the username key from app-credentials into DB_USER using valueFrom.secretKeyRef.',
             yamlRaw: podSecretSpecificKeyYaml,
           },
+        ],
+        practice: [
+          { id: 'secret-p1', title: 'Create a Secret using a YAML definition file' },
+          { id: 'secret-p2', title: 'Create a Secret using kubectl' },
+          { id: 'secret-p3', title: 'Use an entire Secret as env vars in a Pod' },
+          { id: 'secret-p4', title: 'Use a specific key from a Secret as an env var in a Pod' },
         ],
       },
       {
@@ -181,6 +192,12 @@ export const tutorialSections = [
             yamlRaw: podConfigMapSpecificKeyYaml,
           },
         ],
+        practice: [
+          { id: 'cm-p1', title: 'Create a ConfigMap using a YAML definition file' },
+          { id: 'cm-p2', title: 'Create a ConfigMap using kubectl' },
+          { id: 'cm-p3', title: 'Use an entire ConfigMap as env vars in a Pod' },
+          { id: 'cm-p4', title: 'Use a specific key from a ConfigMap as an env var in a Pod' },
+        ],
       },
       {
         id: 'security-context',
@@ -199,6 +216,10 @@ export const tutorialSections = [
               'Overrides pod-level runAsUser in one container and drops all Linux capabilities at container scope.',
             yamlRaw: podContainerSecurityOverrideYaml,
           },
+        ],
+        practice: [
+          { id: 'sc-p1', title: 'Set runAsUser on a Pod using securityContext' },
+          { id: 'sc-p2', title: 'Add or drop Linux capabilities on a container' },
         ],
       },
       {
@@ -219,6 +240,9 @@ export const tutorialSections = [
             yamlRaw: podMultiContainerResourcesYaml,
           },
         ],
+        practice: [
+          { id: 'rr-p1', title: 'Create a Pod with CPU and memory requests and limits set' },
+        ],
       },
       {
         id: 'limitrange',
@@ -237,6 +261,9 @@ export const tutorialSections = [
               'A Pod that omits resources so LimitRange admission defaults can be injected automatically.',
             yamlRaw: podWithoutResourcesYaml,
           },
+        ],
+        practice: [
+          { id: 'lr-p1', title: 'Create a LimitRange using a YAML definition file' },
         ],
       },
       {
@@ -257,14 +284,43 @@ export const tutorialSections = [
             yamlRaw: podToleratesNoExecuteYaml,
           },
         ],
+        practice: [
+          { id: 'tt-p1', title: 'Taint a node using kubectl' },
+          { id: 'tt-p2', title: 'Create a Pod that tolerates the taint' },
+        ],
       },
       {
-        id: 'node-selectors',
-        title: 'Node Selectors',
-        notesRaw: nodeSelectorsNotes,
-        yamlRaw: podNodeSelectorYaml,
-        exampleSummary:
-          'This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.',
+        id: 'node-affinity',
+        title: 'Node Affinity',
+        notesRaw: nodeAffinityNotes,
+        examples: [
+          {
+            title: 'Required — In Operator',
+            summary:
+              'Hard rule: Pod is only scheduled on nodes whose "disktype" label is "ssd" or "nvme". Uses requiredDuringSchedulingIgnoredDuringExecution with the In operator.',
+            yamlRaw: podRequiredAffinityInYaml,
+          },
+          {
+            title: 'Preferred — Exists Operator',
+            summary:
+              'Soft rule: Scheduler prefers nodes that have a "region" label (any value) with weight 80, but falls back to any node. Uses preferredDuringSchedulingIgnoredDuringExecution with the Exists operator.',
+            yamlRaw: podPreferredAffinityExistsYaml,
+          },
+        ],
+        practice: [
+          {
+            id: 'na-p0',
+            title: 'Node Selectors',
+            children: [
+              { id: 'na-p0a', title: 'Label a node using kubectl' },
+              { id: 'na-p0b', title: 'Create a Pod using nodeSelector to target the labelled node' },
+            ],
+          },
+          { id: 'na-p1', title: 'Label a node and create a Pod with a required node affinity rule using the In operator' },
+          { id: 'na-p2', title: 'Create a Pod with node affinity using the In operator and verify it schedules on the correct node' },
+          { id: 'na-p3', title: 'Create a Pod with a preferred node affinity rule using the Exists operator' },
+          { id: 'na-p4', title: 'Observe scheduling behaviour when no node matches a required affinity rule' },
+        ],
       },
     ],
   },

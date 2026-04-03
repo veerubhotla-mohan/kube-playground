@@ -77,6 +77,7 @@ npm run dev
 | 06 | LimitRange | [notes.md](ckad/section_02_configuration/06_limitrange/notes.md) |
 | 07 | Taints and Tolerations | [notes.md](ckad/section_02_configuration/07_taints_and_tolerations/notes.md) |
 | 08 | Node Selectors | [notes.md](ckad/section_02_configuration/08_node_selectors/notes.md) |
+| 09 | Node Affinity | [notes.md](ckad/section_02_configuration/09_node_affinity/notes.md) |
 
 > More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
 

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: region-aware-pod
+  labels:
+    app: region-aware
+spec:
+  affinity:
+    nodeAffinity:
+      # Soft rule: Scheduler prefers a matching node but will fall back to any node.
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 80                  # Score bonus (1-100) given to matching nodes
+          preference:
+            matchExpressions:
+              # "Exists" operator: node must have the key "region" (any value accepted)
+              - key: region
+                operator: Exists
+  containers:
+    - name: app
+      image: nginx

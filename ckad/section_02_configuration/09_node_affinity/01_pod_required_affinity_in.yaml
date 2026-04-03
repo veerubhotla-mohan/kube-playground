@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssd-pod
+  labels:
+    app: storage-heavy
+spec:
+  affinity:
+    nodeAffinity:
+      # Hard rule: Pod will NOT be scheduled if no node satisfies this.
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              # "In" operator: node label "disktype" must be "ssd" or "nvme"
+              - key: disktype
+                operator: In
+                values:
+                  - ssd
+                  - nvme
+  containers:
+    - name: app
+      image: nginx

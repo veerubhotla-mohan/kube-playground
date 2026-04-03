@@ -11,14 +11,41 @@ In Kubernetes, **environment variables** allow you to inject configuration data 
 - **Reference other sources**: Using `valueFrom`, env vars can come from ConfigMaps, Secrets, or Pod fields instead of hardcoded text. This supports cleaner and safer configuration management, especially for sensitive or frequently changed values.
 
 ## Commands
-```
+```kubectl
+# Create a Pod with an environment variable set imperatively
+kubectl run nginx --image=nginx --env="APP_COLOR=blue"
+
+# Set multiple env vars imperatively (repeat --env for each)
+kubectl run nginx --image=nginx --env="APP_COLOR=blue" --env="APP_MODE=prod"
+
+# Generate a Pod manifest with env vars (dry-run trick — edit then apply)
+kubectl run nginx --image=nginx --env="APP_COLOR=blue" --dry-run=client -o yaml > pod.yaml
+kubectl apply -f pod.yaml
+
 # List all env variables inside a running container
 kubectl exec <pod-name> -- env
 
 # Describe a Pod to inspect its declared environment variables
 kubectl describe pod <pod-name>
+```
 
-# Generate a Pod manifest with an env var set (dry-run trick)
-kubectl run nginx --image=nginx --env="APP_COLOR=blue" --dry-run=client -o yaml
+## Setting env vars in a YAML definition file
+Define variables under `spec.containers[].env` as a list of `name`/`value` pairs:
 
+```yaml
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      env:
+        - name: APP_COLOR
+          value: "blue"
+        - name: APP_MODE
+          value: "prod"
+```
+
+Apply the file:
+
+```kubectl
+kubectl apply -f pod.yaml
 ```
