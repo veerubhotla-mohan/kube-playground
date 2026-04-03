@@ -131,6 +131,10 @@ export const tutorialSections = [
         notesRaw: envNotes,
         yamlRaw: envLiteralYaml,
         exampleSummary: 'Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.',
+        practice: [
+          { id: 'env-p1', title: 'Set an environment variable on a Pod created with kubectl' },
+          { id: 'env-p2', title: 'Set an environment variable on a Pod created with a YAML definition file' },
+        ],
       },
       {
         id: 'secrets',
@@ -156,6 +160,12 @@ export const tutorialSections = [
             yamlRaw: podSecretSpecificKeyYaml,
           },
         ],
+        practice: [
+          { id: 'secret-p1', title: 'Create a Secret using a YAML definition file' },
+          { id: 'secret-p2', title: 'Create a Secret using kubectl' },
+          { id: 'secret-p3', title: 'Use an entire Secret as env vars in a Pod' },
+          { id: 'secret-p4', title: 'Use a specific key from a Secret as an env var in a Pod' },
+        ],
       },
       {
         id: 'configmaps',
@@ -180,6 +190,12 @@ export const tutorialSections = [
               'Injects only the APP_COLOR key from app-settings into APP_COLOR using valueFrom.configMapKeyRef.',
             yamlRaw: podConfigMapSpecificKeyYaml,
           },
+        ],
+        practice: [
+          { id: 'cm-p1', title: 'Create a ConfigMap using a YAML definition file' },
+          { id: 'cm-p2', title: 'Create a ConfigMap using kubectl' },
+          { id: 'cm-p3', title: 'Use an entire ConfigMap as env vars in a Pod' },
+          { id: 'cm-p4', title: 'Use a specific key from a ConfigMap as an env var in a Pod' },
         ],
       },
       {
