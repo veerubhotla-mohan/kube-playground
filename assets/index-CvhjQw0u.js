@@ -29,6 +29,9 @@ A **Pod** is the smallest and most basic deployable unit in Kubernetes. It repre
 
 ## Commands
 \`\`\`
+# Create a Pod from a YAML definition file
+kubectl apply -f pod.yaml
+
 # Create a Pod imperatively (quick way for exams)
 kubectl run nginx --image=nginx
 
@@ -37,6 +40,9 @@ kubectl run nginx --image=nginx --port=80
 
 # Generate a Pod manifest without creating it (dry-run trick)
 kubectl run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+
+# Get a specific Pod
+kubectl get pod <pod-name>
 
 # List all Pods in the current namespace
 kubectl get pods
@@ -59,7 +65,7 @@ spec:
   containers:
   - name: nginx
     image: nginx:1.14.2
-`,exampleSummary:`This manifest creates one Pod named nginx with a single nginx container.`},{id:`replicasets`,title:`ReplicaSets`,notesRaw:`# ReplicaSet
+`,exampleSummary:`This manifest creates one Pod named nginx with a single nginx container.`,practice:[{id:`pods-p1`,title:`Create a pod using YAML definition file`},{id:`pods-p2`,title:`Create a pod using kubectl utility`},{id:`pods-p3`,title:`Kubectl commands to get pod, list pods, describe pod and delete pod`}]},{id:`replicasets`,title:`ReplicaSets`,notesRaw:`# ReplicaSet
 
 ## What is it?
 A **ReplicaSet** ensures that a specified number of identical Pod replicas are running at any given time. If a Pod crashes or is deleted, the ReplicaSet automatically creates a replacement. It is the successor to the older \`ReplicationController\`.
@@ -98,6 +104,9 @@ kubectl apply -f replicaset.yaml
 kubectl get replicasets
 kubectl get rs                          # short alias
 
+# Get a specific ReplicaSet
+kubectl get rs <name>
+
 # Describe a ReplicaSet (shows events, selector, pod status)
 kubectl describe rs <name>
 
@@ -132,7 +141,7 @@ spec:
       containers:
         - name: myapp
           image: nginx:1.25
-`,exampleSummary:`This ReplicaSet keeps three identical nginx Pods running using matching labels and selectors.`},{id:`deployments`,title:`Deployments`,notesRaw:`# Deployment
+`,exampleSummary:`This ReplicaSet keeps three identical nginx Pods running using matching labels and selectors.`,practice:[{id:`rs-p1`,title:`Create a ReplicaSet using YAML definition file`},{id:`rs-p3`,title:`Commands to list, get, describe and delete a ReplicaSet`},{id:`rs-p4`,title:`Scale a ReplicaSet using command and edit`}]},{id:`deployments`,title:`Deployments`,notesRaw:`# Deployment
 
 ## What is it?
 A **Deployment** is a higher-level abstraction that manages a ReplicaSet and provides declarative updates for Pods. You describe the desired state (image, replicas, update strategy), and the Deployment controller continuously reconciles the actual state to match it.
@@ -159,8 +168,14 @@ Controlled under \`spec.strategy.rollingUpdate\`:
 ## Commands
 
 \`\`\`kubectl
-# Create a Deployment from a file
+# Create a Deployment from a YAML definition file
 kubectl apply -f deployment.yaml
+
+# Create a Deployment imperatively
+kubectl create deployment <name> --image=<image>
+
+# Create a Deployment imperatively and output the YAML without creating (dry-run trick)
+kubectl create deployment <name> --image=<image> --dry-run=client -o yaml > deployment.yaml
 
 # List Deployments
 kubectl get deployments
@@ -180,6 +195,9 @@ kubectl rollout undo deployment/<name> --to-revision=2
 
 # Scale a Deployment
 kubectl scale deployment/<name> --replicas=5
+
+# Scale a Deployment by editing the spec live
+kubectl edit deployment/<name>
 
 # Update the image imperatively (triggers a new rollout)
 kubectl set image deployment/<name> <container>=<new-image>
@@ -245,7 +263,7 @@ spec:
           image: nginx:1.25
           ports:
             - containerPort: 80
-`}]},{id:`namespaces`,title:`Namespaces`,notesRaw:`# Namespaces
+`}],practice:[{id:`deploy-p1`,title:`Create a Deployment using a YAML definition file`},{id:`deploy-p2`,title:`Create a Deployment using kubectl`},{id:`deploy-p3`,title:`List, get, describe and delete a Deployment using kubectl commands`},{id:`deploy-p4`,title:`Scale a Deployment using the kubectl scale command and the edit command`},{id:`deploy-p5`,title:`Deployment Strategies`,children:[{id:`deploy-p5a`,title:`Create a Deployment with the Recreate strategy`},{id:`deploy-p5b`,title:`Create a Deployment with RollingUpdate and configure maxUnavailable`},{id:`deploy-p5c`,title:`Create a Deployment with RollingUpdate and configure maxSurge`}]},{id:`deploy-p6`,title:`Update a Deployment and use rollout commands to check history, rollback to a previous revision, and pause or resume a rollout`}]},{id:`namespaces`,title:`Namespaces`,notesRaw:`# Namespaces
 
 ## What is it?
 A **Namespace** is a logical partition inside a Kubernetes cluster that lets you organize and isolate resources (Pods, Services, Deployments, etc.) within the same physical cluster.
@@ -264,17 +282,28 @@ A **Namespace** is a logical partition inside a Kubernetes cluster that lets you
 kubectl get namespaces
 kubectl get ns
 
-# Create a Namespace
+# Create a Namespace from a YAML definition file
+kubectl apply -f namespace.yaml
+
+# Create a Namespace imperatively
 kubectl create namespace dev
 
 # Set current context Namespace (so commands default to it)
 kubectl config set-context --current --namespace=dev
 
-# Create/apply a resource into a specific Namespace
-kubectl apply -f app.yaml -n dev
+# Create a Pod in a specific Namespace imperatively
+kubectl run nginx --image=nginx -n dev
+
+# Create/apply a resource into a specific Namespace using a YAML definition file
+# (you can also set namespace: dev in the YAML metadata instead of using -n)
+kubectl apply -f pod.yaml -n dev
 
 # List Pods in a Namespace
 kubectl get pods -n dev
+
+# List Pods across ALL Namespaces
+kubectl get pods --all-namespaces
+kubectl get pods -A                      # short flag
 
 # Delete a Namespace (deletes namespaced resources inside it)
 kubectl delete namespace dev
@@ -283,7 +312,7 @@ kubectl delete namespace dev
 kind: Namespace
 metadata:
   name: dev-team          # logical boundary for team-specific resources
-`,exampleSummary:`This manifest creates a namespace called dev-team to isolate team resources in the cluster.`}]},{id:`section-02-configuration`,label:`Section 02 - Configuration`,concepts:[{id:`env-variables`,title:`Environment Variables`,notesRaw:`# Environment Variables
+`,exampleSummary:`This manifest creates a namespace called dev-team to isolate team resources in the cluster.`,practice:[{id:`ns-p1`,title:`Create a Namespace using a YAML definition file`},{id:`ns-p2`,title:`Create a Namespace using kubectl`},{id:`ns-p3`,title:`Create a Pod in a specific Namespace`,children:[{id:`ns-p3a`,title:`Create a Pod in a specific Namespace using kubectl`},{id:`ns-p3b`,title:`Create a Pod in a specific Namespace using a YAML definition file`}]},{id:`ns-p4`,title:`List Pods across all Namespaces using kubectl`}]}]},{id:`section-02-configuration`,label:`Section 02 - Configuration`,concepts:[{id:`env-variables`,title:`Environment Variables`,notesRaw:`# Environment Variables
 
 ## What is it?
 In Kubernetes, **environment variables** allow you to inject configuration data directly into containers at runtime. They decouple configuration from the container image. The simplest form defines values inline in the Pod spec under \`env[].value\` — no external resource required.
@@ -296,16 +325,43 @@ In Kubernetes, **environment variables** allow you to inject configuration data 
 - **Reference other sources**: Using \`valueFrom\`, env vars can come from ConfigMaps, Secrets, or Pod fields instead of hardcoded text. This supports cleaner and safer configuration management, especially for sensitive or frequently changed values.
 
 ## Commands
-\`\`\`
+\`\`\`kubectl
+# Create a Pod with an environment variable set imperatively
+kubectl run nginx --image=nginx --env="APP_COLOR=blue"
+
+# Set multiple env vars imperatively (repeat --env for each)
+kubectl run nginx --image=nginx --env="APP_COLOR=blue" --env="APP_MODE=prod"
+
+# Generate a Pod manifest with env vars (dry-run trick — edit then apply)
+kubectl run nginx --image=nginx --env="APP_COLOR=blue" --dry-run=client -o yaml > pod.yaml
+kubectl apply -f pod.yaml
+
 # List all env variables inside a running container
 kubectl exec <pod-name> -- env
 
 # Describe a Pod to inspect its declared environment variables
 kubectl describe pod <pod-name>
+\`\`\`
 
-# Generate a Pod manifest with an env var set (dry-run trick)
-kubectl run nginx --image=nginx --env="APP_COLOR=blue" --dry-run=client -o yaml
+## Setting env vars in a YAML definition file
+Define variables under \`spec.containers[].env\` as a list of \`name\`/\`value\` pairs:
 
+\`\`\`yaml
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      env:
+        - name: APP_COLOR
+          value: "blue"
+        - name: APP_MODE
+          value: "prod"
+\`\`\`
+
+Apply the file:
+
+\`\`\`kubectl
+kubectl apply -f pod.yaml
 \`\`\`
 `,yamlRaw:`apiVersion: v1
 kind: Pod
@@ -320,7 +376,7 @@ spec:
           value: blue
         - name: APP_MODE    # another literal value
           value: production
-`,exampleSummary:`Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.`},{id:`secrets`,title:`Secrets`,notesRaw:`# Secrets
+`,exampleSummary:`Pod with two literal env vars (APP_COLOR and APP_MODE) defined inline in the container spec.`,practice:[{id:`env-p1`,title:`Set an environment variable on a Pod created with kubectl`},{id:`env-p2`,title:`Set an environment variable on a Pod created with a YAML definition file`}]},{id:`secrets`,title:`Secrets`,notesRaw:`# Secrets
 
 ## What is it?
 A Secret is a Kubernetes object used to store sensitive data, such as passwords, tokens, or keys, separately from Pod images and manifests. Pods can consume Secret values as environment variables or mounted files.
@@ -334,7 +390,10 @@ A Secret is a Kubernetes object used to store sensitive data, such as passwords,
 
 ## Commands
 \`\`\`kubectl
-# Create a secret from literals
+# Create a Secret from a YAML definition file
+kubectl apply -f secret.yaml
+
+# Create a Secret imperatively from literal values
 kubectl create secret generic app-credentials \\
   --from-literal=username=ckad-user \\
   --from-literal=password=s3cr3t-pass
@@ -342,11 +401,51 @@ kubectl create secret generic app-credentials \\
 # Inspect secret keys (values are base64-encoded)
 kubectl get secret app-credentials -o yaml
 
-# Decode one key value
+# Decode a specific key value
 kubectl get secret app-credentials -o jsonpath='{.data.username}' | base64 -d; echo
 
-# Use all keys from a secret as env vars in a generated Pod manifest
-kubectl run secret-entire-env --image=busybox:1.36 --dry-run=client -o yaml
+# List all Secrets in the current namespace
+kubectl get secrets
+
+# Delete a Secret
+kubectl delete secret app-credentials
+\`\`\`
+
+## Using a Secret in a Pod
+
+### Inject all keys as env vars (\`envFrom\`)
+All keys in the Secret become environment variables in the container:
+
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      envFrom:
+        - secretRef:
+            name: app-credentials   # every key becomes an env var
+\`\`\`
+
+### Inject a specific key as an env var (\`valueFrom\`)
+Map one Secret key to a named environment variable:
+
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      env:
+        - name: DB_USER                  # env var name inside the container
+          valueFrom:
+            secretKeyRef:
+              name: app-credentials      # Secret name
+              key: username              # key inside the Secret
+\`\`\`
+
+Apply any Pod manifest:
+
+\`\`\`kubectl
+kubectl apply -f pod.yaml
 \`\`\`
 `,examples:[{title:`Secret Resource`,summary:`Defines an Opaque Secret named app-credentials with username and password keys via stringData.`,yamlRaw:`apiVersion: v1
 kind: Secret
@@ -383,7 +482,7 @@ spec:
             secretKeyRef:
               name: app-credentials
               key: username   # pull only the username key
-`}]},{id:`configmaps`,title:`ConfigMaps`,notesRaw:`# ConfigMaps
+`}],practice:[{id:`secret-p1`,title:`Create a Secret using a YAML definition file`},{id:`secret-p2`,title:`Create a Secret using kubectl`},{id:`secret-p3`,title:`Use an entire Secret as env vars in a Pod`},{id:`secret-p4`,title:`Use a specific key from a Secret as an env var in a Pod`}]},{id:`configmaps`,title:`ConfigMaps`,notesRaw:`# ConfigMaps
 
 ## What is it?
 A ConfigMap is a Kubernetes object used to store non-sensitive configuration data as key-value pairs. Pods can consume ConfigMap values as environment variables, command arguments, or mounted files without rebuilding the container image.
@@ -397,7 +496,10 @@ A ConfigMap is a Kubernetes object used to store non-sensitive configuration dat
 
 ## Commands
 \`\`\`kubectl
-# Create a ConfigMap from literals
+# Create a ConfigMap from a YAML definition file
+kubectl apply -f configmap.yaml
+
+# Create a ConfigMap imperatively from literal values
 kubectl create configmap app-settings \\
   --from-literal=APP_COLOR=blue \\
   --from-literal=APP_MODE=production
@@ -405,11 +507,48 @@ kubectl create configmap app-settings \\
 # Inspect the ConfigMap
 kubectl get configmap app-settings -o yaml
 
-# Generate a Pod manifest that uses a specific ConfigMap key
-kubectl run configmap-specific-key --image=busybox:1.36 --dry-run=client -o yaml
-
 # List ConfigMaps in the current namespace
 kubectl get configmaps
+
+# Delete a ConfigMap
+kubectl delete configmap app-settings
+\`\`\`
+
+## Using a ConfigMap in a Pod
+
+### Inject all keys as env vars (\`envFrom\`)
+All keys in the ConfigMap become environment variables in the container:
+
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      envFrom:
+        - configMapRef:
+            name: app-settings   # every key becomes an env var
+\`\`\`
+
+### Inject a specific key as an env var (\`valueFrom\`)
+Map one ConfigMap key to a named environment variable:
+
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      env:
+        - name: APP_COLOR                 # env var name inside the container
+          valueFrom:
+            configMapKeyRef:
+              name: app-settings          # ConfigMap name
+              key: APP_COLOR              # key inside the ConfigMap
+\`\`\`
+
+Apply any Pod manifest:
+
+\`\`\`kubectl
+kubectl apply -f pod.yaml
 \`\`\``,examples:[{title:`ConfigMap Resource`,summary:`Defines a ConfigMap named app-settings with non-sensitive application settings stored under data.`,yamlRaw:`apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -441,7 +580,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: app-settings
-              key: APP_COLOR   # pull only one key from the ConfigMap`}]},{id:`security-context`,title:`Security Context`,notesRaw:`# Security Context
+              key: APP_COLOR   # pull only one key from the ConfigMap`}],practice:[{id:`cm-p1`,title:`Create a ConfigMap using a YAML definition file`},{id:`cm-p2`,title:`Create a ConfigMap using kubectl`},{id:`cm-p3`,title:`Use an entire ConfigMap as env vars in a Pod`},{id:`cm-p4`,title:`Use a specific key from a ConfigMap as an env var in a Pod`}]},{id:`security-context`,title:`Security Context`,notesRaw:`# Security Context
 
 ## What is it?
 Security Context defines privilege and access controls for a Pod or container. It is used to control how processes run, which Linux user/group they run as, and what capabilities they have.
@@ -467,21 +606,59 @@ Quick precedence rule for exams:
 
 ## Commands
 \`\`\`kubectl
-# Create a pod with a security context
-kubectl apply -f 01_pod_security_context.yaml
+# Apply a Pod with a security context
+kubectl apply -f pod.yaml
 
-# Verify pod-level runAsUser
-kubectl get pod secure-nginx -o yaml
+# Verify which UID a running container is using
+kubectl exec <pod-name> -- id
 
-# Check container security context fields quickly
-kubectl get pod secure-nginx -o jsonpath='{.spec.containers[0].securityContext}'
+# Inspect the security context fields of a live Pod
+kubectl get pod <pod-name> -o jsonpath='{.spec.securityContext}'
+kubectl get pod <pod-name> -o jsonpath='{.spec.containers[0].securityContext}'
 
-# Show pod-level defaults vs container-level override
-kubectl get pod secure-nginx-override -o yaml
-
-# Validate a manifest client-side (exam-friendly habit)
-kubectl apply --dry-run=client -f 02_pod_container_security_override.yaml
+# Describe a Pod (shows securityContext under containers section)
+kubectl describe pod <pod-name>
 \`\`\`
+
+## Setting runAsUser
+
+### Pod level — applies to all containers as a default
+\`\`\`yaml
+spec:
+  securityContext:
+    runAsUser: 1000   # all containers run as UID 1000 unless overridden
+  containers:
+    - name: app
+      image: nginx
+\`\`\`
+
+### Container level — overrides the pod-level value for that container
+\`\`\`yaml
+spec:
+  securityContext:
+    runAsUser: 1000
+  containers:
+    - name: app
+      image: nginx
+      securityContext:
+        runAsUser: 2000   # this container runs as UID 2000 instead
+\`\`\`
+
+## Adding or Dropping Linux Capabilities
+Capabilities are always set at **container** scope under \`securityContext.capabilities\`:
+
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      securityContext:
+        capabilities:
+          add: ["NET_ADMIN", "SYS_TIME"]   # grant extra capabilities
+          drop: ["ALL"]                     # remove all default capabilities
+\`\`\`
+
+> \`add\` and \`drop\` can be used together. \`drop: ["ALL"]\` first, then \`add\` is a common least-privilege pattern.
 `,examples:[{title:`Pod-Level runAsUser`,summary:`Defines a Pod-level runAsUser value that acts as the default UID for containers in the Pod.`,yamlRaw:`apiVersion: v1
 kind: Pod
 metadata:
@@ -511,7 +688,7 @@ spec:
             - ALL # Drop all Linux capabilities for least privilege
       ports:
         - containerPort: 80
-`}]},{id:`resource-requirements`,title:`Resource Requirements`,notesRaw:`# Resource Requirements
+`}],practice:[{id:`sc-p1`,title:`Set runAsUser on a Pod using securityContext`},{id:`sc-p2`,title:`Add or drop Linux capabilities on a container`}]},{id:`resource-requirements`,title:`Resource Requirements`,notesRaw:`# Resource Requirements
 
 ## What is it?
 Resource requirements define how much CPU and memory a container asks for (\`requests\`) and the maximum it is allowed to use (\`limits\`). Kubernetes uses these values for Pod scheduling and runtime enforcement.
@@ -534,25 +711,33 @@ Resource requirements define how much CPU and memory a container asks for (\`req
 ## Commands
 \`\`\`kubectl
 # Create a Pod with CPU/memory requests and limits
-kubectl apply -f 01_pod_requests_limits.yaml
+kubectl apply -f pod.yaml
 
 # Inspect resource requests and limits for a Pod
-kubectl describe pod web-with-resources
+kubectl describe pod <pod-name>
 
 # View requests/limits via JSONPath
-kubectl get pod web-with-resources -o jsonpath='{.spec.containers[0].resources}'
+kubectl get pod <pod-name> -o jsonpath='{.spec.containers[0].resources}'
 
-# Watch restart counts and reason if memory pressure causes OOMKill
-kubectl get pod web-with-resources -o wide
-kubectl describe pod web-with-resources
+# List LimitRanges in a namespace (affects default requests/limits)
+kubectl get limitrange -n <namespace>
+\`\`\`
 
-# View namespace-level default/min/max policy that affects requests and limits
-kubectl get limitrange -n dev-team
-kubectl describe limitrange container-resource-policy -n dev-team
+## Setting requests and limits in a YAML definition file
+Define resources under \`spec.containers[].resources\`:
 
-# Validate manifest client-side
-kubectl apply --dry-run=client -f 01_pod_requests_limits.yaml
-kubectl apply --dry-run=client -f 02_pod_multiple_containers_resources.yaml
+\`\`\`yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      resources:
+        requests:
+          cpu: "250m"      # minimum CPU guaranteed for scheduling
+          memory: "64Mi"   # minimum memory guaranteed for scheduling
+        limits:
+          cpu: "500m"      # container throttled if it exceeds this
+          memory: "128Mi"  # container OOMKilled if it exceeds this
 \`\`\`
 `,examples:[{title:`Single Container Requests and Limits`,summary:`Defines CPU and memory requests for scheduling and limits for runtime enforcement in one nginx container.`,yamlRaw:`apiVersion: v1
 kind: Pod
@@ -595,7 +780,7 @@ spec:
         limits:
           cpu: "200m"
           memory: "128Mi"
-`}]},{id:`limitrange`,title:`LimitRange`,notesRaw:`# LimitRange
+`}],practice:[{id:`rr-p1`,title:`Create a Pod with CPU and memory requests and limits set`}]},{id:`limitrange`,title:`LimitRange`,notesRaw:`# LimitRange
 
 ## What is it?
 A LimitRange is a namespace-level policy that sets default, minimum, and maximum resource constraints for Pods or containers. It helps enforce consistent CPU and memory requests/limits without requiring every manifest author to define all values manually.
@@ -611,21 +796,17 @@ A LimitRange is a namespace-level policy that sets default, minimum, and maximum
 
 ## Commands
 \`\`\`kubectl
-# Create a namespace policy for default and bounded resources
-kubectl apply -f 01_limitrange_container_defaults.yaml
+# Create a LimitRange from a YAML definition file
+kubectl apply -f limitrange.yaml
 
-# Inspect LimitRange policy details
-kubectl describe limitrange container-resource-policy -n dev-team
+# Inspect a LimitRange policy
+kubectl describe limitrange <name> -n <namespace>
 
-# Try creating a Pod and let defaults be injected
-kubectl apply -f 02_pod_without_resources.yaml -n dev-team
+# List LimitRanges in a namespace
+kubectl get limitrange -n <namespace>
 
-# Check effective requests/limits after admission
-kubectl get pod demo-no-resources -n dev-team -o yaml
-
-# Validate manifests client-side
-kubectl apply --dry-run=client -f 01_limitrange_container_defaults.yaml
-kubectl apply --dry-run=client -f 02_pod_without_resources.yaml
+# Verify that defaults were injected into a Pod that omits resource fields
+kubectl get pod <pod-name> -n <namespace> -o yaml
 \`\`\`
 `,examples:[{title:`Container Defaults and Bounds`,summary:`Defines default requests/limits plus min and max resource boundaries for all containers in a namespace.`,yamlRaw:`apiVersion: v1
 kind: LimitRange
@@ -659,7 +840,7 @@ spec:
       image: nginx:1.25
       ports:
         - containerPort: 80
-`}]},{id:`taints-and-tolerations`,title:`Taints and Tolerations`,notesRaw:`# Taints and Tolerations
+`}],practice:[{id:`lr-p1`,title:`Create a LimitRange using a YAML definition file`}]},{id:`taints-and-tolerations`,title:`Taints and Tolerations`,notesRaw:`# Taints and Tolerations
 
 ## What is it?
 A taint is a property applied to a Node that repels Pods, while a toleration is a Pod setting that allows the Pod to be scheduled onto, or continue running on, a tainted Node. They are used together to control placement for special-purpose nodes such as dedicated, GPU, or maintenance pools.
@@ -678,23 +859,63 @@ A taint is a property applied to a Node that repels Pods, while a toleration is 
 
 ## Commands
 \`\`\`kubectl
-# Add a taint to a node so ordinary Pods avoid it
+# Add a taint to a node
+kubectl taint nodes <node-name> <key>=<value>:<effect>
+
+# Example — reserve a node for batch workloads
 kubectl taint nodes worker-1 dedicated=batch:NoSchedule
 
-# Verify the taint on the node
-kubectl describe node worker-1
+# Verify taints on a node
+kubectl describe node <node-name> | grep -i taint
 
-# Create a Pod with a NoSchedule toleration
-kubectl apply -f <manifest.yaml>
+# Remove a taint from a node (append - at the end)
+kubectl taint nodes <node-name> <key>=<value>:<effect>-
 
-# Create a Pod with a NoExecute toleration (optionally with tolerationSeconds)
-kubectl apply -f <manifest.yaml>
+# Apply a Pod manifest with a toleration
+kubectl apply -f pod.yaml
+\`\`\`
 
-# Remove the taint from the node
-kubectl taint nodes worker-1 dedicated=batch:NoSchedule-
+## Tainting a Node
+Taint effects and when to use them:
 
-# Validate a manifest client-side
-kubectl apply --dry-run=client -f <manifest.yaml>
+| Effect | Behaviour |
+|--------|-----------|
+| \`NoSchedule\` | New Pods without a matching toleration are not scheduled onto the node |
+| \`PreferNoSchedule\` | Scheduler avoids the node but may still place Pods there if needed |
+| \`NoExecute\` | Blocks new non-tolerating Pods **and** evicts existing ones that don't tolerate it |
+
+\`\`\`kubectl
+# NoSchedule — hard block for new Pods
+kubectl taint nodes worker-1 dedicated=batch:NoSchedule
+
+# NoExecute — evicts existing Pods too
+kubectl taint nodes worker-1 maintenance=true:NoExecute
+\`\`\`
+
+## Adding a Toleration to a Pod
+Toleraton must match the taint's key, value, and effect exactly (when using \`operator: Equal\`):
+
+\`\`\`yaml
+spec:
+  tolerations:
+    - key: "dedicated"          # must match the taint key
+      operator: "Equal"         # Equal checks key + value; Exists checks key only
+      value: "batch"            # must match the taint value
+      effect: "NoSchedule"      # must match the taint effect
+  containers:
+    - name: app
+      image: nginx
+\`\`\`
+
+Using \`operator: Exists\` (matches any value for the key):
+
+\`\`\`yaml
+spec:
+  tolerations:
+    - key: "maintenance"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 300    # Pod stays up to 5 min before eviction
 \`\`\``,examples:[{title:`Match a NoSchedule Taint`,summary:`This Pod tolerates dedicated=batch:NoSchedule so the scheduler may place it on a node reserved for batch workloads.`,yamlRaw:`apiVersion: v1
 kind: Pod
 metadata:
@@ -721,48 +942,145 @@ spec:
   containers:
     - name: app
       image: busybox:1.36
-      command: ["sh", "-c", "sleep 3600"]`}]},{id:`node-selectors`,title:`Node Selectors`,notesRaw:`# Node Selectors
+      command: ["sh", "-c", "sleep 3600"]`}],practice:[{id:`tt-p1`,title:`Taint a node using kubectl`},{id:`tt-p2`,title:`Create a Pod that tolerates the taint`}]},{id:`node-affinity`,title:`Node Affinity`,notesRaw:`# Node Affinity
 
 ## What is it?
-A node selector is the simplest way to constrain a Pod so Kubernetes schedules it only onto Nodes that have specific labels. The scheduler performs an exact label match: every key and value listed in \`spec.nodeSelector\` must already exist on the target Node.
+Node affinity is a Pod scheduling rule that constrains which Nodes a Pod can be placed on based on **Node labels**. It is a more expressive replacement for \`nodeSelector\`, supporting operators and soft ("preferred") rules in addition to hard ("required") rules.
 
 ## Key Characteristics
-- Defined in the Pod spec under \`spec.nodeSelector\`.
-- Uses exact key-value matches only; there are no operators such as \`In\` or \`NotIn\`.
-- All listed labels must match for the Pod to be scheduled.
-- If no Node has the required labels, the Pod stays in \`Pending\`.
-- Commonly used for simple placement rules such as SSD nodes, regional nodes, or dedicated hardware pools.
-- Works well for basic scheduling, but becomes limiting when you need expressions or soft preferences.
-- Node selectors rely on labels already being present on Nodes.
+- Rules are defined under \`spec.affinity.nodeAffinity\` in the Pod spec.
+- Two scheduling types control when rules are enforced:
+  - \`requiredDuringSchedulingIgnoredDuringExecution\` — **Hard rule**: Pod will not be scheduled unless the rule is satisfied. Already-running Pods are not evicted if node labels change later.
+  - \`preferredDuringSchedulingIgnoredDuringExecution\` — **Soft rule**: Scheduler tries to place the Pod on a matching Node, but falls back to any available Node if no match is found. Uses a \`weight\` (1–100) to score candidate Nodes.
+- A third type, \`requiredDuringSchedulingRequiredDuringExecution\`, is planned but not yet available in stable Kubernetes.
+- Rules are expressed as \`matchExpressions\`, each with a \`key\`, \`operator\`, and optional \`values\` list.
+- Multiple \`matchExpressions\` in one \`nodeSelectorTerm\` are ANDed (all must match).
+- Multiple \`nodeSelectorTerms\` are ORed (at least one must match).
+
+## matchExpression Operators
+
+| Operator | Behaviour | \`values\` required? |
+|----------|-----------|-------------------|
+| \`In\` | Node label value must be one of the listed values | Yes |
+| \`NotIn\` | Node label value must not be in the listed values | Yes |
+| \`Exists\` | Node label key must exist (any value accepted) | No |
+| \`DoesNotExist\` | Node label key must not exist | No |
+| \`Gt\` | Node label value (as integer) must be greater than the single value | Yes |
+| \`Lt\` | Node label value (as integer) must be less than the single value | Yes |
 
 ## Commands
 \`\`\`kubectl
-# Add a label to a node so Pods can target it
-kubectl label nodes worker-1 disktype=ssd
+# Label a node (prerequisite for affinity rules to match)
+kubectl label nodes <node-name> <key>=<value>
 
-# Verify node labels
+# Example — label a node by disk type and region
+kubectl label nodes worker-1 disktype=ssd
+kubectl label nodes worker-1 region=us-east
+
+# View labels on all nodes
 kubectl get nodes --show-labels
 
-# Create a Pod with a nodeSelector
-kubectl apply -f <manifest.yaml>
+# View labels on a specific node
+kubectl describe node <node-name> | grep -i label
 
-# Inspect why a Pod is or is not scheduled
-kubectl describe pod api-on-ssd
+# Remove a label from a node (append - at the end)
+kubectl label nodes <node-name> <key>-
 
-# Validate a manifest client-side
-kubectl apply --dry-run=client -f <manifest.yaml>
-\`\`\``,yamlRaw:`apiVersion: v1
+# Apply a Pod with node affinity
+kubectl apply -f pod.yaml
+
+# Verify the Pod was scheduled to the expected node
+kubectl get pod <pod-name> -o wide
+\`\`\`
+
+## Node Affinity vs nodeSelector
+
+| Feature | \`nodeSelector\` | Node Affinity |
+|---------|---------------|---------------|
+| Operators | Exact match only | \`In\`, \`NotIn\`, \`Exists\`, \`DoesNotExist\`, \`Gt\`, \`Lt\` |
+| Soft/preferred scheduling | No | Yes (\`preferredDuring...\`) |
+| Multiple values per key | No | Yes (\`In\` with array of values) |
+| OR across term groups | No | Yes (multiple \`nodeSelectorTerms\`) |
+
+## Hard Rule — \`requiredDuringSchedulingIgnoredDuringExecution\`
+The Pod is only scheduled onto Nodes whose labels satisfy **all** expressions:
+
+\`\`\`yaml
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: disktype          # Node must have this label
+                operator: In
+                values:
+                  - ssd                # ...with value "ssd" or "nvme"
+                  - nvme
+  containers:
+    - name: app
+      image: nginx
+\`\`\`
+
+## Soft Rule — \`preferredDuringSchedulingIgnoredDuringExecution\`
+The scheduler scores Nodes by the \`weight\`; the Pod still lands somewhere even with no match:
+
+\`\`\`yaml
+spec:
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 80                   # Higher weight = stronger preference
+          preference:
+            matchExpressions:
+              - key: region
+                operator: Exists       # Any Node that has the "region" label
+  containers:
+    - name: app
+      image: nginx
+\`\`\`
+`,examples:[{title:`Required — In Operator`,summary:`Hard rule: Pod is only scheduled on nodes whose "disktype" label is "ssd" or "nvme". Uses requiredDuringSchedulingIgnoredDuringExecution with the In operator.`,yamlRaw:`apiVersion: v1
 kind: Pod
 metadata:
-  name: api-on-ssd
+  name: ssd-pod
+  labels:
+    app: storage-heavy
 spec:
-  nodeSelector:
-    disktype: ssd # Schedule only onto nodes labeled disktype=ssd
-    workload: api # All nodeSelector labels must match on the same node
+  affinity:
+    nodeAffinity:
+      # Hard rule: Pod will NOT be scheduled if no node satisfies this.
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              # "In" operator: node label "disktype" must be "ssd" or "nvme"
+              - key: disktype
+                operator: In
+                values:
+                  - ssd
+                  - nvme
   containers:
-    - name: api
-      image: nginx:1.27
-      ports:
-        - containerPort: 80`,exampleSummary:`This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.`}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>h(a.notesRaw),[a]),[s,c]=(0,l.useState)(!1),[d,p]=(0,l.useState)(()=>{try{let e=localStorage.getItem(`ckad-progress`);return new Set(e?JSON.parse(e):[])}catch{return new Set}});function _(e){p(t=>{let n=new Set(t);n.has(e)?n.delete(e):n.add(e);try{localStorage.setItem(`ckad-progress`,JSON.stringify([...n]))}catch{}return n})}function v(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>v(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:g(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:g(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]}),(0,f.jsx)(`button`,{type:`button`,className:`progress-fab`,onClick:()=>c(e=>!e),"aria-label":`Toggle progress tracker`,children:s?`✕`:`📋`}),s&&(0,f.jsx)(`div`,{className:`progress-backdrop`,onClick:()=>c(!1)}),(0,f.jsxs)(`div`,{className:s?`progress-drawer open`:`progress-drawer`,children:[(0,f.jsxs)(`div`,{className:`progress-drawer-header`,children:[(0,f.jsx)(`h2`,{children:`Progress Tracker`}),(0,f.jsx)(`button`,{type:`button`,className:`progress-drawer-close`,onClick:()=>c(!1),"aria-label":`Close`,children:`✕`})]}),(0,f.jsx)(`div`,{className:`progress-drawer-body`,children:(0,f.jsx)(m,{sections:u,completed:d,onToggle:_})})]})]})}function m({sections:e,completed:t,onToggle:n}){let r=e.reduce((e,t)=>e+t.concepts.length,0),i=e.reduce((e,n)=>e+n.concepts.filter(e=>t.has(e.id)).length,0),a=r?Math.round(i/r*100):0;return(0,f.jsxs)(`div`,{className:`progress-tracker`,children:[(0,f.jsxs)(`div`,{className:`progress-overview`,children:[(0,f.jsxs)(`p`,{className:`progress-overview-count`,children:[i,` of `,r,` topics completed (`,a,`%)`]}),(0,f.jsx)(`div`,{className:`progress-bar-wrap`,children:(0,f.jsx)(`div`,{className:`progress-bar-fill`,style:{width:`${a}%`}})})]}),e.map((e,r)=>{let i=e.concepts.filter(e=>t.has(e.id)).length;return(0,f.jsxs)(`div`,{className:`progress-section animate-in`,style:{animationDelay:`${(r+1)*60}ms`},children:[(0,f.jsxs)(`div`,{className:`progress-section-header`,children:[(0,f.jsx)(`h3`,{children:e.label}),(0,f.jsxs)(`span`,{className:`progress-badge`,children:[i,`/`,e.concepts.length]})]}),(0,f.jsx)(`ul`,{className:`progress-checklist`,children:e.concepts.map(e=>(0,f.jsx)(`li`,{className:`progress-item`,children:(0,f.jsxs)(`label`,{className:`progress-label`,children:[(0,f.jsx)(`input`,{type:`checkbox`,checked:t.has(e.id),onChange:()=>n(e.id)}),(0,f.jsx)(`span`,{className:t.has(e.id)?`progress-topic done`:`progress-topic`,children:e.title})]})},e.id))})]},e.id)})]})}function h(e){let t=e.replace(/\r\n/g,`
+    - name: app
+      image: nginx
+`},{title:`Preferred — Exists Operator`,summary:`Soft rule: Scheduler prefers nodes that have a "region" label (any value) with weight 80, but falls back to any node. Uses preferredDuringSchedulingIgnoredDuringExecution with the Exists operator.`,yamlRaw:`apiVersion: v1
+kind: Pod
+metadata:
+  name: region-aware-pod
+  labels:
+    app: region-aware
+spec:
+  affinity:
+    nodeAffinity:
+      # Soft rule: Scheduler prefers a matching node but will fall back to any node.
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 80                  # Score bonus (1-100) given to matching nodes
+          preference:
+            matchExpressions:
+              # "Exists" operator: node must have the key "region" (any value accepted)
+              - key: region
+                operator: Exists
+  containers:
+    - name: app
+      image: nginx
+`}],practice:[{id:`na-p0`,title:`Node Selectors`,children:[{id:`na-p0a`,title:`Label a node using kubectl`},{id:`na-p0b`,title:`Create a Pod using nodeSelector to target the labelled node`}]},{id:`na-p1`,title:`Label a node and create a Pod with a required node affinity rule using the In operator`},{id:`na-p2`,title:`Create a Pod with node affinity using the In operator and verify it schedules on the correct node`},{id:`na-p3`,title:`Create a Pod with a preferred node affinity rule using the Exists operator`},{id:`na-p4`,title:`Observe scheduling behaviour when no node matches a required affinity rule`}]}]}],d=e((e=>{var t=Symbol.for(`react.transitional.element`),n=Symbol.for(`react.fragment`);function r(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.Fragment=n,e.jsx=r,e.jsxs=r})),f=e(((e,t)=>{t.exports=d()}))();function p(){let[e,t]=(0,l.useState)(u[0].id),n=(0,l.useMemo)(()=>u.find(t=>t.id===e),[e]),[r,i]=(0,l.useState)(u[0].concepts[0].id),a=(0,l.useMemo)(()=>n.concepts.find(e=>e.id===r)||n.concepts[0],[r,n]),o=(0,l.useMemo)(()=>b(a.notesRaw),[a]),[s,c]=(0,l.useState)(!1),[d,p]=(0,l.useState)(()=>{try{let e=localStorage.getItem(`ckad-progress`);return new Set(e?JSON.parse(e):[])}catch{return new Set}});function m(e){p(t=>{let n=new Set(t);n.has(e)?n.delete(e):n.add(e);try{localStorage.setItem(`ckad-progress`,JSON.stringify([...n]))}catch{}return n})}function h(e){let n=u.find(t=>t.id===e);t(e),i(n.concepts[0].id)}return(0,f.jsxs)(`div`,{className:`app-shell`,children:[(0,f.jsxs)(`header`,{className:`app-header`,children:[(0,f.jsx)(`p`,{className:`eyebrow`,children:`CKAD Preparation`}),(0,f.jsx)(`h1`,{children:`Kubernetes Tutorial`}),(0,f.jsx)(`p`,{className:`subtitle`,children:`Navigate through CKAD topics, read concise explanations, and inspect real YAML manifests from this repository.`})]}),(0,f.jsxs)(`div`,{className:`layout`,children:[(0,f.jsxs)(`aside`,{className:`sidebar`,children:[(0,f.jsx)(`h2`,{children:`Sections`}),(0,f.jsx)(`div`,{className:`section-list`,children:u.map(t=>(0,f.jsxs)(`button`,{type:`button`,className:t.id===e?`section-button active`:`section-button`,onClick:()=>h(t.id),children:[(0,f.jsx)(`span`,{children:t.label}),(0,f.jsxs)(`small`,{children:[t.concepts.length,` concepts`]})]},t.id))})]}),(0,f.jsxs)(`main`,{className:`content`,children:[(0,f.jsx)(`section`,{className:`concept-tabs`,children:n.concepts.map(e=>(0,f.jsx)(`button`,{type:`button`,className:e.id===a.id?`tab active`:`tab`,onClick:()=>i(e.id),children:e.title},e.id))}),(0,f.jsxs)(`section`,{className:`card animate-in`,children:[(0,f.jsx)(`h2`,{children:a.title}),(0,f.jsx)(`p`,{className:`what-is`,children:x(o.whatIsIt)})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-1`,children:[(0,f.jsx)(`h3`,{children:`Key Characteristics`}),(0,f.jsx)(`ul`,{children:o.keyCharacteristics.map(e=>(0,f.jsx)(`li`,{children:x(e)},e))})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-2`,children:[(0,f.jsx)(`h3`,{children:`Commands`}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:o.commands})})]}),(0,f.jsxs)(`section`,{className:`card animate-in delay-3`,children:[(0,f.jsx)(`h3`,{children:a.examples?`YAML Examples`:`Example YAML`}),a.examples?(0,f.jsx)(`div`,{className:`yaml-examples`,children:a.examples.map(e=>(0,f.jsxs)(`div`,{className:`yaml-example-item`,children:[(0,f.jsx)(`h4`,{children:e.title}),(0,f.jsx)(`p`,{className:`yaml-path`,children:e.summary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:e.yamlRaw})})]},e.title))}):(0,f.jsxs)(f.Fragment,{children:[(0,f.jsx)(`p`,{className:`yaml-path`,children:a.exampleSummary}),(0,f.jsx)(`pre`,{children:(0,f.jsx)(`code`,{children:a.yamlRaw})})]})]})]})]}),(0,f.jsx)(`button`,{type:`button`,className:`progress-fab`,onClick:()=>c(e=>!e),"aria-label":`Toggle progress tracker`,children:s?`✕`:`📋`}),s&&(0,f.jsx)(`div`,{className:`progress-backdrop`,onClick:()=>c(!1)}),(0,f.jsxs)(`div`,{className:s?`progress-drawer open`:`progress-drawer`,children:[(0,f.jsxs)(`div`,{className:`progress-drawer-header`,children:[(0,f.jsx)(`h2`,{children:`Progress Tracker`}),(0,f.jsx)(`button`,{type:`button`,className:`progress-drawer-close`,onClick:()=>c(!1),"aria-label":`Close`,children:`✕`})]}),(0,f.jsx)(`div`,{className:`progress-drawer-body`,children:(0,f.jsx)(y,{sections:u,completed:d,onToggle:m})})]})]})}function m({done:e,total:t}){let n=2*Math.PI*14,r=n*(1-(t?e/t:0));return(0,f.jsxs)(`svg`,{className:`ring-svg`,viewBox:`0 0 36 36`,width:`36`,height:`36`,children:[(0,f.jsx)(`circle`,{cx:`18`,cy:`18`,r:14,className:`ring-track`}),(0,f.jsx)(`circle`,{cx:`18`,cy:`18`,r:14,className:`ring-fill`,style:{strokeDasharray:n,strokeDashoffset:r,stroke:t>0&&e===t?`var(--ring-done)`:`var(--primary)`}}),(0,f.jsxs)(`text`,{x:`18`,y:`22`,className:`ring-text`,children:[e,`/`,t]})]})}function h(e){return e.reduce((e,t)=>e+(t.children?t.children.length:1),0)}function g(e,t){return e.reduce((e,n)=>e+(n.children?n.children.filter(e=>t.has(e.id)).length:t.has(n.id)?1:0),0)}function _({item:e,completed:t,onToggle:n}){let[r,i]=(0,l.useState)(!1),a=e.children.filter(e=>t.has(e.id)).length,o=e.children.length;return(0,f.jsxs)(`li`,{className:`progress-item practice-subgroup`,children:[(0,f.jsxs)(`button`,{type:`button`,className:`practice-subgroup-toggle`,onClick:()=>i(e=>!e),children:[(0,f.jsx)(`span`,{className:a===o?`progress-topic done`:`progress-topic`,children:e.title}),(0,f.jsxs)(`span`,{className:`practice-subgroup-meta`,children:[(0,f.jsxs)(`span`,{className:`practice-subgroup-count`,children:[a,`/`,o]}),(0,f.jsx)(`span`,{className:`progress-concept-chevron`,children:r?`▲`:`▼`})]})]}),r&&(0,f.jsx)(`ul`,{className:`progress-checklist progress-sub-checklist practice-sub-sub-checklist`,children:e.children.map(e=>(0,f.jsx)(`li`,{className:`progress-item`,children:(0,f.jsxs)(`label`,{className:`progress-label`,children:[(0,f.jsx)(`input`,{type:`checkbox`,checked:t.has(e.id),onChange:()=>n(e.id)}),(0,f.jsx)(`span`,{className:t.has(e.id)?`progress-topic done`:`progress-topic`,children:e.title})]})},e.id))})]})}function v({concept:e,completed:t,onToggle:n}){let[r,i]=(0,l.useState)(!1),a=g(e.practice,t),o=h(e.practice),s=o>0&&a===o,c=o?Math.round(a/o*100):0;return(0,f.jsxs)(`li`,{className:`progress-concept-group`,children:[(0,f.jsxs)(`button`,{type:`button`,className:`progress-concept-toggle`,onClick:()=>i(e=>!e),children:[(0,f.jsx)(`span`,{className:s?`progress-concept-title complete`:`progress-concept-title`,children:e.title}),(0,f.jsxs)(`span`,{className:`progress-concept-meta`,children:[(0,f.jsxs)(`span`,{className:`progress-concept-pct`,children:[c,`%`]}),(0,f.jsx)(m,{done:a,total:o}),(0,f.jsx)(`span`,{className:`progress-concept-chevron`,children:r?`▲`:`▼`})]})]}),r&&(0,f.jsx)(`ul`,{className:`progress-checklist progress-sub-checklist`,children:e.practice.map(e=>e.children?(0,f.jsx)(_,{item:e,completed:t,onToggle:n},e.id):(0,f.jsx)(`li`,{className:`progress-item`,children:(0,f.jsxs)(`label`,{className:`progress-label`,children:[(0,f.jsx)(`input`,{type:`checkbox`,checked:t.has(e.id),onChange:()=>n(e.id)}),(0,f.jsx)(`span`,{className:t.has(e.id)?`progress-topic done`:`progress-topic`,children:e.title})]})},e.id))})]})}function y({sections:e,completed:t,onToggle:n}){let r=e.reduce((e,t)=>e+t.concepts.reduce((e,t)=>e+(t.practice?h(t.practice):1),0),0),i=e.reduce((e,n)=>e+n.concepts.reduce((e,n)=>e+(n.practice?g(n.practice,t):t.has(n.id)?1:0),0),0),a=r?Math.round(i/r*100):0;return(0,f.jsxs)(`div`,{className:`progress-tracker`,children:[(0,f.jsxs)(`div`,{className:`progress-overview`,children:[(0,f.jsxs)(`p`,{className:`progress-overview-count`,children:[i,` of `,r,` items completed (`,a,`%)`]}),(0,f.jsx)(`div`,{className:`progress-bar-wrap`,children:(0,f.jsx)(`div`,{className:`progress-bar-fill`,style:{width:`${a}%`}})})]}),e.map((e,r)=>{let i=e.concepts.reduce((e,t)=>e+(t.practice?h(t.practice):1),0),a=e.concepts.reduce((e,n)=>e+(n.practice?g(n.practice,t):t.has(n.id)?1:0),0);return(0,f.jsxs)(`div`,{className:`progress-section animate-in`,style:{animationDelay:`${(r+1)*60}ms`},children:[(0,f.jsxs)(`div`,{className:`progress-section-header`,children:[(0,f.jsx)(`h3`,{children:e.label}),(0,f.jsxs)(`span`,{className:`progress-badge`,children:[a,`/`,i]})]}),(0,f.jsx)(`ul`,{className:`progress-checklist`,children:e.concepts.map(e=>e.practice?(0,f.jsx)(v,{concept:e,completed:t,onToggle:n},e.id):(0,f.jsx)(`li`,{className:`progress-item`,children:(0,f.jsxs)(`label`,{className:`progress-label`,children:[(0,f.jsx)(`input`,{type:`checkbox`,checked:t.has(e.id),onChange:()=>n(e.id)}),(0,f.jsx)(`span`,{className:t.has(e.id)?`progress-topic done`:`progress-topic`,children:e.title})]})},e.id))})]},e.id)})]})}function b(e){let t=e.replace(/\r\n/g,`
 `),n=t.match(/## What is it\?\n([\s\S]*?)(\n## |$)/),r=t.match(/## Key Characteristics\n([\s\S]*?)(\n## |$)/),i=t.match(/## Commands\s*\n```(?:kubectl)?\n([\s\S]*?)\n```/);return{whatIsIt:n?n[1].trim().replace(/\n+/g,` `):`Definition not available.`,keyCharacteristics:r?r[1].split(`
-`).map(e=>e.trim()).filter(e=>e.startsWith(`-`)).map(e=>e.replace(/^-\s*/,``)):[],commands:i?i[1].trim():`No commands found for this concept.`}}function g(e){return e.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g).filter(Boolean).map((e,t)=>e.startsWith(`**`)&&e.endsWith(`**`)?(0,f.jsx)(`strong`,{children:e.slice(2,-2)},`inline-${t}`):e.startsWith("`")&&e.endsWith("`")?(0,f.jsx)(`code`,{children:e.slice(1,-1)},`inline-${t}`):e.startsWith(`*`)&&e.endsWith(`*`)?(0,f.jsx)(`em`,{children:e.slice(1,-1)},`inline-${t}`):(0,f.jsx)(`span`,{children:e},`inline-${t}`))}(0,c.createRoot)(document.getElementById(`root`)).render((0,f.jsx)(l.StrictMode,{children:(0,f.jsx)(p,{})}));
+`).map(e=>e.trim()).filter(e=>e.startsWith(`-`)).map(e=>e.replace(/^-\s*/,``)):[],commands:i?i[1].trim():`No commands found for this concept.`}}function x(e){return e.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g).filter(Boolean).map((e,t)=>e.startsWith(`**`)&&e.endsWith(`**`)?(0,f.jsx)(`strong`,{children:e.slice(2,-2)},`inline-${t}`):e.startsWith("`")&&e.endsWith("`")?(0,f.jsx)(`code`,{children:e.slice(1,-1)},`inline-${t}`):e.startsWith(`*`)&&e.endsWith(`*`)?(0,f.jsx)(`em`,{children:e.slice(1,-1)},`inline-${t}`):(0,f.jsx)(`span`,{children:e},`inline-${t}`))}(0,c.createRoot)(document.getElementById(`root`)).render((0,f.jsx)(l.StrictMode,{children:(0,f.jsx)(p,{})}));
