@@ -37,6 +37,9 @@ kubectl apply -f replicaset.yaml
 kubectl get replicasets
 kubectl get rs                          # short alias
 
+# Get a specific ReplicaSet
+kubectl get rs <name>
+
 # Describe a ReplicaSet (shows events, selector, pod status)
 kubectl describe rs <name>
 

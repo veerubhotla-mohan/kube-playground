@@ -21,6 +21,9 @@ A **Pod** is the smallest and most basic deployable unit in Kubernetes. It repre
 
 ## Commands
 ```
+# Create a Pod from a YAML definition file
+kubectl apply -f pod.yaml
+
 # Create a Pod imperatively (quick way for exams)
 kubectl run nginx --image=nginx
 
@@ -29,6 +32,9 @@ kubectl run nginx --image=nginx --port=80
 
 # Generate a Pod manifest without creating it (dry-run trick)
 kubectl run nginx --image=nginx --dry-run=client -o yaml > pod.yaml
+
+# Get a specific Pod
+kubectl get pod <pod-name>
 
 # List all Pods in the current namespace
 kubectl get pods

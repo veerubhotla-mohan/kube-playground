@@ -44,6 +44,11 @@ export const tutorialSections = [
         yamlRaw: podYaml,
         exampleSummary:
           'This manifest creates one Pod named nginx with a single nginx container.',
+        practice: [
+          { id: 'pods-p1', title: 'Create a pod using YAML definition file' },
+          { id: 'pods-p2', title: 'Create a pod using kubectl utility' },
+          { id: 'pods-p3', title: 'Kubectl commands to get pod, list pods, describe pod and delete pod' },
+        ],
       },
       {
         id: 'replicasets',
@@ -52,6 +57,11 @@ export const tutorialSections = [
         yamlRaw: replicaSetYaml,
         exampleSummary:
           'This ReplicaSet keeps three identical nginx Pods running using matching labels and selectors.',
+        practice: [
+          { id: 'rs-p1', title: 'Create a ReplicaSet using YAML definition file' },
+          { id: 'rs-p3', title: 'Commands to list, get, describe and delete a ReplicaSet' },
+          { id: 'rs-p4', title: 'Scale a ReplicaSet using command and edit' },
+        ],
       },
       {
         id: 'deployments',
@@ -71,6 +81,22 @@ export const tutorialSections = [
             yamlRaw: deploymentRecreateYaml,
           },
         ],
+        practice: [
+          { id: 'deploy-p1', title: 'Create a Deployment using a YAML definition file' },
+          { id: 'deploy-p2', title: 'Create a Deployment using kubectl' },
+          { id: 'deploy-p3', title: 'List, get, describe and delete a Deployment using kubectl commands' },
+          { id: 'deploy-p4', title: 'Scale a Deployment using the kubectl scale command and the edit command' },
+          {
+            id: 'deploy-p5',
+            title: 'Deployment Strategies',
+            children: [
+              { id: 'deploy-p5a', title: 'Create a Deployment with the Recreate strategy' },
+              { id: 'deploy-p5b', title: 'Create a Deployment with RollingUpdate and configure maxUnavailable' },
+              { id: 'deploy-p5c', title: 'Create a Deployment with RollingUpdate and configure maxSurge' },
+            ],
+          },
+          { id: 'deploy-p6', title: 'Update a Deployment and use rollout commands to check history, rollback to a previous revision, and pause or resume a rollout' },
+        ],
       },
       {
         id: 'namespaces',
@@ -79,6 +105,19 @@ export const tutorialSections = [
         yamlRaw: namespaceYaml,
         exampleSummary:
           'This manifest creates a namespace called dev-team to isolate team resources in the cluster.',
+        practice: [
+          { id: 'ns-p1', title: 'Create a Namespace using a YAML definition file' },
+          { id: 'ns-p2', title: 'Create a Namespace using kubectl' },
+          {
+            id: 'ns-p3',
+            title: 'Create a Pod in a specific Namespace',
+            children: [
+              { id: 'ns-p3a', title: 'Create a Pod in a specific Namespace using kubectl' },
+              { id: 'ns-p3b', title: 'Create a Pod in a specific Namespace using a YAML definition file' },
+            ],
+          },
+          { id: 'ns-p4', title: 'List Pods across all Namespaces using kubectl' },
+        ],
       },
     ],
   },

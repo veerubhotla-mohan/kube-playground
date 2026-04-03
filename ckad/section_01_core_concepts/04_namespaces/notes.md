@@ -17,17 +17,28 @@ A **Namespace** is a logical partition inside a Kubernetes cluster that lets you
 kubectl get namespaces
 kubectl get ns
 
-# Create a Namespace
+# Create a Namespace from a YAML definition file
+kubectl apply -f namespace.yaml
+
+# Create a Namespace imperatively
 kubectl create namespace dev
 
 # Set current context Namespace (so commands default to it)
 kubectl config set-context --current --namespace=dev
 
-# Create/apply a resource into a specific Namespace
-kubectl apply -f app.yaml -n dev
+# Create a Pod in a specific Namespace imperatively
+kubectl run nginx --image=nginx -n dev
+
+# Create/apply a resource into a specific Namespace using a YAML definition file
+# (you can also set namespace: dev in the YAML metadata instead of using -n)
+kubectl apply -f pod.yaml -n dev
 
 # List Pods in a Namespace
 kubectl get pods -n dev
+
+# List Pods across ALL Namespaces
+kubectl get pods --all-namespaces
+kubectl get pods -A                      # short flag
 
 # Delete a Namespace (deletes namespaced resources inside it)
 kubectl delete namespace dev

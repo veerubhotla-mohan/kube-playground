@@ -25,8 +25,14 @@ Controlled under `spec.strategy.rollingUpdate`:
 ## Commands
 
 ```kubectl
-# Create a Deployment from a file
+# Create a Deployment from a YAML definition file
 kubectl apply -f deployment.yaml
+
+# Create a Deployment imperatively
+kubectl create deployment <name> --image=<image>
+
+# Create a Deployment imperatively and output the YAML without creating (dry-run trick)
+kubectl create deployment <name> --image=<image> --dry-run=client -o yaml > deployment.yaml
 
 # List Deployments
 kubectl get deployments
@@ -46,6 +52,9 @@ kubectl rollout undo deployment/<name> --to-revision=2
 
 # Scale a Deployment
 kubectl scale deployment/<name> --replicas=5
+
+# Scale a Deployment by editing the spec live
+kubectl edit deployment/<name>
 
 # Update the image imperatively (triggers a new rollout)
 kubectl set image deployment/<name> <container>=<new-image>
