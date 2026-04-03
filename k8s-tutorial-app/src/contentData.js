@@ -29,8 +29,9 @@ import podWithoutResourcesYaml from '../../ckad/section_02_configuration/06_limi
 import taintsAndTolerationsNotes from '../../ckad/section_02_configuration/07_taints_and_tolerations/notes.md?raw'
 import podToleratesNoScheduleYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/01_pod_tolerates_noschedule.yaml?raw'
 import podToleratesNoExecuteYaml from '../../ckad/section_02_configuration/07_taints_and_tolerations/02_pod_tolerates_noexecute.yaml?raw'
-import nodeSelectorsNotes from '../../ckad/section_02_configuration/08_node_selectors/notes.md?raw'
-import podNodeSelectorYaml from '../../ckad/section_02_configuration/08_node_selectors/01_pod_node_selector.yaml?raw'
+import nodeAffinityNotes from '../../ckad/section_02_configuration/09_node_affinity/notes.md?raw'
+import podRequiredAffinityInYaml from '../../ckad/section_02_configuration/09_node_affinity/01_pod_required_affinity_in.yaml?raw'
+import podPreferredAffinityExistsYaml from '../../ckad/section_02_configuration/09_node_affinity/02_pod_preferred_affinity_exists.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -289,12 +290,37 @@ export const tutorialSections = [
         ],
       },
       {
-        id: 'node-selectors',
-        title: 'Node Selectors',
-        notesRaw: nodeSelectorsNotes,
-        yamlRaw: podNodeSelectorYaml,
-        exampleSummary:
-          'This Pod uses nodeSelector to require both disktype=ssd and workload=api on the target node before scheduling can succeed.',
+        id: 'node-affinity',
+        title: 'Node Affinity',
+        notesRaw: nodeAffinityNotes,
+        examples: [
+          {
+            title: 'Required — In Operator',
+            summary:
+              'Hard rule: Pod is only scheduled on nodes whose "disktype" label is "ssd" or "nvme". Uses requiredDuringSchedulingIgnoredDuringExecution with the In operator.',
+            yamlRaw: podRequiredAffinityInYaml,
+          },
+          {
+            title: 'Preferred — Exists Operator',
+            summary:
+              'Soft rule: Scheduler prefers nodes that have a "region" label (any value) with weight 80, but falls back to any node. Uses preferredDuringSchedulingIgnoredDuringExecution with the Exists operator.',
+            yamlRaw: podPreferredAffinityExistsYaml,
+          },
+        ],
+        practice: [
+          {
+            id: 'na-p0',
+            title: 'Node Selectors',
+            children: [
+              { id: 'na-p0a', title: 'Label a node using kubectl' },
+              { id: 'na-p0b', title: 'Create a Pod using nodeSelector to target the labelled node' },
+            ],
+          },
+          { id: 'na-p1', title: 'Label a node and create a Pod with a required node affinity rule using the In operator' },
+          { id: 'na-p2', title: 'Create a Pod with node affinity using the In operator and verify it schedules on the correct node' },
+          { id: 'na-p3', title: 'Create a Pod with a preferred node affinity rule using the Exists operator' },
+          { id: 'na-p4', title: 'Observe scheduling behaviour when no node matches a required affinity rule' },
+        ],
       },
     ],
   },
