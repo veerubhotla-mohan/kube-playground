@@ -21,23 +21,31 @@ Resource requirements define how much CPU and memory a container asks for (`requ
 ## Commands
 ```kubectl
 # Create a Pod with CPU/memory requests and limits
-kubectl apply -f 01_pod_requests_limits.yaml
+kubectl apply -f pod.yaml
 
 # Inspect resource requests and limits for a Pod
-kubectl describe pod web-with-resources
+kubectl describe pod <pod-name>
 
 # View requests/limits via JSONPath
-kubectl get pod web-with-resources -o jsonpath='{.spec.containers[0].resources}'
+kubectl get pod <pod-name> -o jsonpath='{.spec.containers[0].resources}'
 
-# Watch restart counts and reason if memory pressure causes OOMKill
-kubectl get pod web-with-resources -o wide
-kubectl describe pod web-with-resources
+# List LimitRanges in a namespace (affects default requests/limits)
+kubectl get limitrange -n <namespace>
+```
 
-# View namespace-level default/min/max policy that affects requests and limits
-kubectl get limitrange -n dev-team
-kubectl describe limitrange container-resource-policy -n dev-team
+## Setting requests and limits in a YAML definition file
+Define resources under `spec.containers[].resources`:
 
-# Validate manifest client-side
-kubectl apply --dry-run=client -f 01_pod_requests_limits.yaml
-kubectl apply --dry-run=client -f 02_pod_multiple_containers_resources.yaml
+```yaml
+spec:
+  containers:
+    - name: app
+      image: nginx
+      resources:
+        requests:
+          cpu: "250m"      # minimum CPU guaranteed for scheduling
+          memory: "64Mi"   # minimum memory guaranteed for scheduling
+        limits:
+          cpu: "500m"      # container throttled if it exceeds this
+          memory: "128Mi"  # container OOMKilled if it exceeds this
 ```

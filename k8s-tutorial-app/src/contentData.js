@@ -216,6 +216,10 @@ export const tutorialSections = [
             yamlRaw: podContainerSecurityOverrideYaml,
           },
         ],
+        practice: [
+          { id: 'sc-p1', title: 'Set runAsUser on a Pod using securityContext' },
+          { id: 'sc-p2', title: 'Add or drop Linux capabilities on a container' },
+        ],
       },
       {
         id: 'resource-requirements',
@@ -234,6 +238,9 @@ export const tutorialSections = [
               'Shows requests and limits per container in a sidecar Pod so scheduler decisions use the Pod-level sum.',
             yamlRaw: podMultiContainerResourcesYaml,
           },
+        ],
+        practice: [
+          { id: 'rr-p1', title: 'Create a Pod with CPU and memory requests and limits set' },
         ],
       },
       {
@@ -254,6 +261,9 @@ export const tutorialSections = [
             yamlRaw: podWithoutResourcesYaml,
           },
         ],
+        practice: [
+          { id: 'lr-p1', title: 'Create a LimitRange using a YAML definition file' },
+        ],
       },
       {
         id: 'taints-and-tolerations',
@@ -272,6 +282,10 @@ export const tutorialSections = [
               'This Pod uses operator Exists with tolerationSeconds so it can remain on a node for five minutes after a maintenance NoExecute taint is applied.',
             yamlRaw: podToleratesNoExecuteYaml,
           },
+        ],
+        practice: [
+          { id: 'tt-p1', title: 'Taint a node using kubectl' },
+          { id: 'tt-p2', title: 'Create a Pod that tolerates the taint' },
         ],
       },
       {

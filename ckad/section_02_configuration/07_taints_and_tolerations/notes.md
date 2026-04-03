@@ -17,21 +17,61 @@ A taint is a property applied to a Node that repels Pods, while a toleration is 
 
 ## Commands
 ```kubectl
-# Add a taint to a node so ordinary Pods avoid it
+# Add a taint to a node
+kubectl taint nodes <node-name> <key>=<value>:<effect>
+
+# Example — reserve a node for batch workloads
 kubectl taint nodes worker-1 dedicated=batch:NoSchedule
 
-# Verify the taint on the node
-kubectl describe node worker-1
+# Verify taints on a node
+kubectl describe node <node-name> | grep -i taint
 
-# Create a Pod with a NoSchedule toleration
-kubectl apply -f <manifest.yaml>
+# Remove a taint from a node (append - at the end)
+kubectl taint nodes <node-name> <key>=<value>:<effect>-
 
-# Create a Pod with a NoExecute toleration (optionally with tolerationSeconds)
-kubectl apply -f <manifest.yaml>
+# Apply a Pod manifest with a toleration
+kubectl apply -f pod.yaml
+```
 
-# Remove the taint from the node
-kubectl taint nodes worker-1 dedicated=batch:NoSchedule-
+## Tainting a Node
+Taint effects and when to use them:
 
-# Validate a manifest client-side
-kubectl apply --dry-run=client -f <manifest.yaml>
+| Effect | Behaviour |
+|--------|-----------|
+| `NoSchedule` | New Pods without a matching toleration are not scheduled onto the node |
+| `PreferNoSchedule` | Scheduler avoids the node but may still place Pods there if needed |
+| `NoExecute` | Blocks new non-tolerating Pods **and** evicts existing ones that don't tolerate it |
+
+```kubectl
+# NoSchedule — hard block for new Pods
+kubectl taint nodes worker-1 dedicated=batch:NoSchedule
+
+# NoExecute — evicts existing Pods too
+kubectl taint nodes worker-1 maintenance=true:NoExecute
+```
+
+## Adding a Toleration to a Pod
+Toleraton must match the taint's key, value, and effect exactly (when using `operator: Equal`):
+
+```yaml
+spec:
+  tolerations:
+    - key: "dedicated"          # must match the taint key
+      operator: "Equal"         # Equal checks key + value; Exists checks key only
+      value: "batch"            # must match the taint value
+      effect: "NoSchedule"      # must match the taint effect
+  containers:
+    - name: app
+      image: nginx
+```
+
+Using `operator: Exists` (matches any value for the key):
+
+```yaml
+spec:
+  tolerations:
+    - key: "maintenance"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 300    # Pod stays up to 5 min before eviction
 ```

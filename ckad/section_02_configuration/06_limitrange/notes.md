@@ -14,19 +14,15 @@ A LimitRange is a namespace-level policy that sets default, minimum, and maximum
 
 ## Commands
 ```kubectl
-# Create a namespace policy for default and bounded resources
-kubectl apply -f 01_limitrange_container_defaults.yaml
+# Create a LimitRange from a YAML definition file
+kubectl apply -f limitrange.yaml
 
-# Inspect LimitRange policy details
-kubectl describe limitrange container-resource-policy -n dev-team
+# Inspect a LimitRange policy
+kubectl describe limitrange <name> -n <namespace>
 
-# Try creating a Pod and let defaults be injected
-kubectl apply -f 02_pod_without_resources.yaml -n dev-team
+# List LimitRanges in a namespace
+kubectl get limitrange -n <namespace>
 
-# Check effective requests/limits after admission
-kubectl get pod demo-no-resources -n dev-team -o yaml
-
-# Validate manifests client-side
-kubectl apply --dry-run=client -f 01_limitrange_container_defaults.yaml
-kubectl apply --dry-run=client -f 02_pod_without_resources.yaml
+# Verify that defaults were injected into a Pod that omits resource fields
+kubectl get pod <pod-name> -n <namespace> -o yaml
 ```
