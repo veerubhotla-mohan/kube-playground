@@ -11,6 +11,7 @@
   --primary: #1f7a59;
   --primary-soft: #e2f2ea;
   --shadow: 0 16px 40px rgba(20, 47, 35, 0.12);
+  --ring-done: #22a06b;
 }
 
 * {
@@ -391,6 +392,144 @@ code {
   border: 1px solid var(--primary);
   border-radius: 999px;
   padding: 2px 10px;
+}
+
+.progress-concept-group {
+  display: grid;
+  gap: 0;
+}
+
+.progress-concept-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  border-radius: 8px;
+  transition: background 150ms ease;
+}
+
+.progress-concept-toggle:hover {
+  background: var(--bg-accent);
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.progress-concept-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: color 220ms ease;
+}
+
+.progress-concept-title.complete {
+  color: var(--ring-done);
+}
+
+.progress-concept-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.progress-concept-pct {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 32px;
+  text-align: right;
+}
+
+.progress-concept-chevron {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+/* Circular ring */
+.ring-svg {
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 3;
+}
+
+.ring-fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 350ms ease, stroke 350ms ease;
+}
+
+.ring-text {
+  fill: var(--text);
+  font-size: 9px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  text-anchor: middle;
+  transform: rotate(90deg) translate(0, -36px);
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.practice-subgroup {
+  display: grid;
+  gap: 0;
+}
+
+.practice-subgroup-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 5px 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 150ms ease;
+}
+
+.practice-subgroup-toggle:hover {
+  background: var(--bg-accent);
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.practice-subgroup-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.practice-subgroup-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.practice-sub-sub-checklist {
+  margin-left: 8px !important;
+}
+
+.progress-sub-checklist {
+  padding-left: 14px !important;
+  border-left: 2px solid var(--line);
+  margin-left: 4px;
+  margin-top: 4px;
+  padding-bottom: 4px;
 }
 
 .progress-checklist {

@@ -187,19 +187,151 @@ function App() {
   )
 }
 
-function ProgressTracker({ sections, completed, onToggle }) {
-  const totalConcepts = sections.reduce((sum, s) => sum + s.concepts.length, 0)
-  const completedCount = sections.reduce(
-    (sum, s) => sum + s.concepts.filter((c) => completed.has(c.id)).length,
-    0,
+function CircleRing({ done, total }) {
+  const r = 14
+  const circumference = 2 * Math.PI * r
+  const pct = total ? done / total : 0
+  const offset = circumference * (1 - pct)
+  const allDone = total > 0 && done === total
+  return (
+    <svg className="ring-svg" viewBox="0 0 36 36" width="36" height="36">
+      <circle cx="18" cy="18" r={r} className="ring-track" />
+      <circle
+        cx="18"
+        cy="18"
+        r={r}
+        className="ring-fill"
+        style={{
+          strokeDasharray: circumference,
+          strokeDashoffset: offset,
+          stroke: allDone ? 'var(--ring-done)' : 'var(--primary)',
+        }}
+      />
+      <text x="18" y="22" className="ring-text">{done}/{total}</text>
+    </svg>
   )
-  const pct = totalConcepts ? Math.round((completedCount / totalConcepts) * 100) : 0
+}
+
+function countItems(practice) {
+  return practice.reduce((sum, p) => sum + (p.children ? p.children.length : 1), 0)
+}
+
+function countDone(practice, completed) {
+  return practice.reduce((sum, p) =>
+    sum + (p.children
+      ? p.children.filter((c) => completed.has(c.id)).length
+      : completed.has(p.id) ? 1 : 0), 0)
+}
+
+function PracticeSubGroup({ item, completed, onToggle }) {
+  const [open, setOpen] = useState(false)
+  const done = item.children.filter((c) => completed.has(c.id)).length
+  const total = item.children.length
+  const allDone = done === total
+  return (
+    <li className="progress-item practice-subgroup">
+      <button
+        type="button"
+        className="practice-subgroup-toggle"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className={allDone ? 'progress-topic done' : 'progress-topic'}>{item.title}</span>
+        <span className="practice-subgroup-meta">
+          <span className="practice-subgroup-count">{done}/{total}</span>
+          <span className="progress-concept-chevron">{open ? '▲' : '▼'}</span>
+        </span>
+      </button>
+      {open && (
+        <ul className="progress-checklist progress-sub-checklist practice-sub-sub-checklist">
+          {item.children.map((child) => (
+            <li key={child.id} className="progress-item">
+              <label className="progress-label">
+                <input
+                  type="checkbox"
+                  checked={completed.has(child.id)}
+                  onChange={() => onToggle(child.id)}
+                />
+                <span className={completed.has(child.id) ? 'progress-topic done' : 'progress-topic'}>
+                  {child.title}
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  )
+}
+
+function ConceptGroup({ concept, completed, onToggle }) {
+  const [open, setOpen] = useState(false)
+  const done = countDone(concept.practice, completed)
+  const total = countItems(concept.practice)
+  const allDone = total > 0 && done === total
+  const pct = total ? Math.round((done / total) * 100) : 0
+
+  return (
+    <li className="progress-concept-group">
+      <button
+        type="button"
+        className="progress-concept-toggle"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className={allDone ? 'progress-concept-title complete' : 'progress-concept-title'}>
+          {concept.title}
+        </span>
+        <span className="progress-concept-meta">
+          <span className="progress-concept-pct">{pct}%</span>
+          <CircleRing done={done} total={total} />
+          <span className="progress-concept-chevron">{open ? '▲' : '▼'}</span>
+        </span>
+      </button>
+      {open && (
+        <ul className="progress-checklist progress-sub-checklist">
+          {concept.practice.map((item) =>
+            item.children ? (
+              <PracticeSubGroup
+                key={item.id}
+                item={item}
+                completed={completed}
+                onToggle={onToggle}
+              />
+            ) : (
+              <li key={item.id} className="progress-item">
+                <label className="progress-label">
+                  <input
+                    type="checkbox"
+                    checked={completed.has(item.id)}
+                    onChange={() => onToggle(item.id)}
+                  />
+                  <span className={completed.has(item.id) ? 'progress-topic done' : 'progress-topic'}>
+                    {item.title}
+                  </span>
+                </label>
+              </li>
+            )
+          )}
+        </ul>
+      )}
+    </li>
+  )
+}
+
+function ProgressTracker({ sections, completed, onToggle }) {
+  const totalItems = sections.reduce((sum, s) =>
+    sum + s.concepts.reduce((cs, c) => cs + (c.practice ? countItems(c.practice) : 1), 0), 0)
+  const completedCount = sections.reduce((sum, s) =>
+    sum + s.concepts.reduce((cs, c) =>
+      cs + (c.practice
+        ? countDone(c.practice, completed)
+        : completed.has(c.id) ? 1 : 0), 0), 0)
+  const pct = totalItems ? Math.round((completedCount / totalItems) * 100) : 0
 
   return (
     <div className="progress-tracker">
       <div className="progress-overview">
         <p className="progress-overview-count">
-          {completedCount} of {totalConcepts} topics completed ({pct}%)
+          {completedCount} of {totalItems} items completed ({pct}%)
         </p>
         <div className="progress-bar-wrap">
           <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
@@ -207,7 +339,11 @@ function ProgressTracker({ sections, completed, onToggle }) {
       </div>
 
       {sections.map((section, si) => {
-        const sectionDone = section.concepts.filter((c) => completed.has(c.id)).length
+        const sectionTotal = section.concepts.reduce((cs, c) => cs + (c.practice ? countItems(c.practice) : 1), 0)
+        const sectionDone = section.concepts.reduce((cs, c) =>
+          cs + (c.practice
+            ? countDone(c.practice, completed)
+            : completed.has(c.id) ? 1 : 0), 0)
         return (
           <div
             key={section.id}
@@ -217,24 +353,33 @@ function ProgressTracker({ sections, completed, onToggle }) {
             <div className="progress-section-header">
               <h3>{section.label}</h3>
               <span className="progress-badge">
-                {sectionDone}/{section.concepts.length}
+                {sectionDone}/{sectionTotal}
               </span>
             </div>
             <ul className="progress-checklist">
-              {section.concepts.map((concept) => (
-                <li key={concept.id} className="progress-item">
-                  <label className="progress-label">
-                    <input
-                      type="checkbox"
-                      checked={completed.has(concept.id)}
-                      onChange={() => onToggle(concept.id)}
-                    />
-                    <span className={completed.has(concept.id) ? 'progress-topic done' : 'progress-topic'}>
-                      {concept.title}
-                    </span>
-                  </label>
-                </li>
-              ))}
+              {section.concepts.map((concept) =>
+                concept.practice ? (
+                  <ConceptGroup
+                    key={concept.id}
+                    concept={concept}
+                    completed={completed}
+                    onToggle={onToggle}
+                  />
+                ) : (
+                  <li key={concept.id} className="progress-item">
+                    <label className="progress-label">
+                      <input
+                        type="checkbox"
+                        checked={completed.has(concept.id)}
+                        onChange={() => onToggle(concept.id)}
+                      />
+                      <span className={completed.has(concept.id) ? 'progress-topic done' : 'progress-topic'}>
+                        {concept.title}
+                      </span>
+                    </label>
+                  </li>
+                )
+              )}
             </ul>
           </div>
         )
