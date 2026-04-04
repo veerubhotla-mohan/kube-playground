@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+spec:
+  replicas: 1                     # ~20% of traffic with 4 stable + 1 canary = 5 total pods
+  selector:
+    matchLabels:
+      app: my-app
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: my-app
+        track: canary
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.26       # new version receiving a small slice of live traffic

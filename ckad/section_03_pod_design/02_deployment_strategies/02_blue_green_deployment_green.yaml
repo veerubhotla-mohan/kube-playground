@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+      slot: green                 # unique label identifying the new version
+  template:
+    metadata:
+      labels:
+        app: my-app
+        slot: green
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.26       # represents the new version being released

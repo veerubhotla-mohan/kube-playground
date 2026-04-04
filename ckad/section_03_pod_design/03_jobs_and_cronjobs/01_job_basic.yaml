@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-job
+spec:
+  completions: 1                  # number of successful Pod completions required
+  parallelism: 1                  # number of Pods allowed to run in parallel
+  backoffLimit: 3                 # retries before marking the Job as failed
+  template:
+    spec:
+      restartPolicy: Never        # must be Never or OnFailure for Jobs
+      containers:
+        - name: pi
+          image: busybox:1.36
+          command: ["sh", "-c", "echo 'Job running...'; sleep 2; echo 'Job done'"]

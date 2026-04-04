@@ -32,6 +32,20 @@ import podToleratesNoExecuteYaml from '../../ckad/section_02_configuration/07_ta
 import nodeAffinityNotes from '../../ckad/section_02_configuration/09_node_affinity/notes.md?raw'
 import podRequiredAffinityInYaml from '../../ckad/section_02_configuration/09_node_affinity/01_pod_required_affinity_in.yaml?raw'
 import podPreferredAffinityExistsYaml from '../../ckad/section_02_configuration/09_node_affinity/02_pod_preferred_affinity_exists.yaml?raw'
+import multiContainerNotes from '../../ckad/section_03_pod_design/01_multi_container_patterns/notes.md?raw'
+import colocatedContainersYaml from '../../ckad/section_03_pod_design/01_multi_container_patterns/01_colocated_containers.yaml?raw'
+import initContainersYaml from '../../ckad/section_03_pod_design/01_multi_container_patterns/02_init_containers.yaml?raw'
+import sidecarContainerYaml from '../../ckad/section_03_pod_design/01_multi_container_patterns/03_sidecar_container.yaml?raw'
+import deploymentStrategiesNotes from '../../ckad/section_03_pod_design/02_deployment_strategies/notes.md?raw'
+import blueGreenBlueYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/01_blue_green_deployment_blue.yaml?raw'
+import blueGreenGreenYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/02_blue_green_deployment_green.yaml?raw'
+import blueGreenServiceYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/03_blue_green_service.yaml?raw'
+import canaryStableYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/04_canary_deployment_stable.yaml?raw'
+import canaryCanaryYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/05_canary_deployment_canary.yaml?raw'
+import canaryServiceYaml from '../../ckad/section_03_pod_design/02_deployment_strategies/06_canary_service.yaml?raw'
+import jobsAndCronJobsNotes from '../../ckad/section_03_pod_design/03_jobs_and_cronjobs/notes.md?raw'
+import jobBasicYaml from '../../ckad/section_03_pod_design/03_jobs_and_cronjobs/01_job_basic.yaml?raw'
+import cronJobBasicYaml from '../../ckad/section_03_pod_design/03_jobs_and_cronjobs/02_cronjob_basic.yaml?raw'
 
 export const tutorialSections = [
   {
@@ -320,6 +334,117 @@ export const tutorialSections = [
           { id: 'na-p2', title: 'Create a Pod with node affinity using the In operator and verify it schedules on the correct node' },
           { id: 'na-p3', title: 'Create a Pod with a preferred node affinity rule using the Exists operator' },
           { id: 'na-p4', title: 'Observe scheduling behaviour when no node matches a required affinity rule' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'section-03-pod-design',
+    label: 'Section 03 - Pod Design',
+    concepts: [
+      {
+        id: 'multi-container-patterns',
+        title: 'Multi-Container Patterns',
+        notesRaw: multiContainerNotes,
+        examples: [
+          {
+            title: 'Colocated Containers',
+            summary:
+              'Two containers (app + logger) running side-by-side in the same Pod, sharing the same network namespace.',
+            yamlRaw: colocatedContainersYaml,
+          },
+          {
+            title: 'Init Containers',
+            summary:
+              'An init container runs setup logic to completion before the main nginx container is allowed to start.',
+            yamlRaw: initContainersYaml,
+          },
+          {
+            title: 'Sidecar Container',
+            summary:
+              'A native sidecar (initContainer + restartPolicy: Always) periodically polls the main nginx container via shared localhost, demonstrating the shared network namespace without any volume.',
+            yamlRaw: sidecarContainerYaml,
+          },
+        ],
+        practice: [
+          { id: 'mcp-p1', title: 'Create a Pod with two colocated containers and exec into each' },
+          { id: 'mcp-p2', title: 'Create a Pod with an init container that delays app startup' },
+          { id: 'mcp-p3', title: 'Create a Pod with a sidecar sharing a volume with the main container' },
+          { id: 'mcp-p4', title: 'Inspect init container logs and observe Pod phase transitions' },
+        ],
+      },
+      {
+        id: 'deployment-strategies',
+        title: 'Deployment Strategies',
+        notesRaw: deploymentStrategiesNotes,
+        examples: [
+          {
+            title: 'Blue Deployment',
+            summary:
+              'The current stable version (nginx 1.25) running as the "blue" slot. The Service targets this Deployment until cutover.',
+            yamlRaw: blueGreenBlueYaml,
+          },
+          {
+            title: 'Green Deployment',
+            summary:
+              'The new version (nginx 1.26) running as the "green" slot. Deployed alongside blue before any traffic is switched.',
+            yamlRaw: blueGreenGreenYaml,
+          },
+          {
+            title: 'Blue-Green Service',
+            summary:
+              'Service targets the blue slot. Patch the selector to "green" for instant zero-downtime cutover.',
+            yamlRaw: blueGreenServiceYaml,
+          },
+          {
+            title: 'Stable Deployment (Canary)',
+            summary:
+              '4-replica Deployment serving the majority of traffic with the current stable version.',
+            yamlRaw: canaryStableYaml,
+          },
+          {
+            title: 'Canary Deployment',
+            summary:
+              '1-replica Deployment running the new version, receiving ~20% of traffic alongside the 4 stable pods.',
+            yamlRaw: canaryCanaryYaml,
+          },
+          {
+            title: 'Canary Service',
+            summary:
+              'Service selects all pods with app=my-app, spanning both stable and canary Deployments. Traffic splits by replica ratio.',
+            yamlRaw: canaryServiceYaml,
+          },
+        ],
+        practice: [
+          { id: 'ds-p1', title: 'Deploy blue and green versions and switch traffic using a Service selector patch' },
+          { id: 'ds-p2', title: 'Roll back blue-green by patching the Service selector back to blue' },
+          { id: 'ds-p3', title: 'Deploy stable and canary Deployments and verify traffic split by pod count' },
+          { id: 'ds-p4', title: 'Promote canary by scaling it up and deleting the stable Deployment' },
+        ],
+      },
+      {
+        id: 'jobs-and-cronjobs',
+        title: 'Jobs and CronJobs',
+        notesRaw: jobsAndCronJobsNotes,
+        examples: [
+          {
+            title: 'Job',
+            summary:
+              'A one-off Job that runs a busybox container to completion, with completions=1, parallelism=1, and backoffLimit=3.',
+            yamlRaw: jobBasicYaml,
+          },
+          {
+            title: 'CronJob',
+            summary:
+              'A CronJob that triggers every 5 minutes, creating a Job that prints the current date.',
+            yamlRaw: cronJobBasicYaml,
+          },
+        ],
+        practice: [
+          { id: 'jcj-p1', title: 'Create a Job using a YAML definition file and watch it complete' },
+          { id: 'jcj-p2', title: 'Create a Job using kubectl' },
+          { id: 'jcj-p3', title: 'Create a CronJob using a YAML definition file' },
+          { id: 'jcj-p4', title: 'Manually trigger a Job from a CronJob using kubectl create job --from' },
         ],
       },
     ],

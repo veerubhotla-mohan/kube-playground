@@ -79,7 +79,15 @@ npm run dev
 | 08 | Node Selectors | [notes.md](ckad/section_02_configuration/08_node_selectors/notes.md) |
 | 09 | Node Affinity | [notes.md](ckad/section_02_configuration/09_node_affinity/notes.md) |
 
-> More sections covering the full CKAD syllabus (multi-container pods, observability, services & networking, state persistence, configuration, security, and more) will be added progressively.
+### Section 03 — Pod Design
+
+| # | Topic | Notes |
+|---|-------|-------|
+| 01 | Multi-Container Patterns (Colocated, Init, Sidecar) | [notes.md](ckad/section_03_pod_design/01_multi_container_patterns/notes.md) |
+| 02 | Deployment Strategies (Blue-Green & Canary) | [notes.md](ckad/section_03_pod_design/02_deployment_strategies/notes.md) |
+| 03 | Jobs and CronJobs | [notes.md](ckad/section_03_pod_design/03_jobs_and_cronjobs/notes.md) |
+
+> More sections covering the full CKAD syllabus (observability, services & networking, state persistence, security, and more) will be added progressively.
 
 ---
 

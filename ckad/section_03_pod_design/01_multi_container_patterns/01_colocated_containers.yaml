@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: colocated-demo
+spec:
+  containers:
+    - name: app
+      image: nginx:1.25          # primary application container
+    - name: logger
+      image: busybox:1.36        # secondary container colocated in the same Pod
+      command: ["sh", "-c", "while true; do echo '[logger] heartbeat'; sleep 5; done"]

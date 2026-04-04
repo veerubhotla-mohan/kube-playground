@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-demo
+spec:
+  initContainers:
+    - name: health-logger
+      image: busybox:1.36
+      restartPolicy: Always           # marks this as a native sidecar — runs alongside main containers
+      # polls the app over shared localhost and logs the HTTP status code
+      command: ["sh", "-c", "while true; do echo \"[sidecar] $(wget -qO- http://localhost | head -c 0 && echo 'app reachable' || echo 'app not ready')\"; sleep 10; done"]
+  containers:
+    - name: app
+      image: nginx:1.25               # sidecar reaches this via localhost (shared network namespace)

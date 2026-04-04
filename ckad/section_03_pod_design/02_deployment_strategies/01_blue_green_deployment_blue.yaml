@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+      slot: blue                  # unique label identifying the blue version
+  template:
+    metadata:
+      labels:
+        app: my-app
+        slot: blue
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.25       # represents the current stable version
